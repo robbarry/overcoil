@@ -40,6 +40,15 @@ Rob is actively using this app. **Never uninstall, reset, seed fixtures into, or
   concurrent user edits occurred, compare the store byte-for-byte. Never mistake a deliberate new
   reading for a failed equality test. Versions 7 and 8 preserved the existing store byte-for-byte.
 
+## Current delivery state
+
+Installed on the phone: **build 9**, source `ff30d597c736`, including iCloud and the clean grid.
+The iCloud worktree/branch is still separate pending the live restore check. Root `main` has the
+UI/statistics/docs changes but not iCloud runtime; **do not accidentally downgrade the phone by
+building/installing main's older target**. Use `.build/icloud-worktree` for this installed feature set.
+Current library upload has been verified from the phone's iCloud status; live isolated restore and
+a second physical-device round trip remain unverified. Builds 7, 8 and 9 left the store byte-identical.
+
 ## Build/sign/install
 
 Project source of truth: `ios/project.yml`; regenerate with `xcodegen generate --spec ios/project.yml`.
