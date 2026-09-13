@@ -10,6 +10,7 @@
 		02FC9E991D4019060AA29FAA /* ClockContinuity.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6480423992CBD0AAE339C72 /* ClockContinuity.swift */; };
 		0B8B52D8A0B9948DB81657C9 /* AppStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79A5215FE2905F07DF081F2B /* AppStore.swift */; };
 		0CAFC7FB2A79ED4B6A077FA1 /* TimeEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AFD3CB7D13471E075B6D931 /* TimeEntryView.swift */; };
+		0DCD161EB94F521B89541D1A /* ReadingPrefill.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FA7AABE6A7CB8712E634D42 /* ReadingPrefill.swift */; };
 		5647EA0BCFF9FC69EEE6989D /* CoverChooser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80BD647E765E21B47E58F164 /* CoverChooser.swift */; };
 		611D0C200EBFAA562B84623E /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D5ED202DD3183805D94FF74 /* SettingsView.swift */; };
 		65FE331A31BC920C289B820A /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 52C8068B89573FAE04C4F59B /* PrivacyInfo.xcprivacy */; };
@@ -48,6 +49,7 @@
 		79A5215FE2905F07DF081F2B /* AppStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStore.swift; sourceTree = "<group>"; };
 		80BD647E765E21B47E58F164 /* CoverChooser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoverChooser.swift; sourceTree = "<group>"; };
 		852D20F1EDC4EEF77BBC258F /* OvercoilApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OvercoilApp.swift; sourceTree = "<group>"; };
+		8FA7AABE6A7CB8712E634D42 /* ReadingPrefill.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingPrefill.swift; sourceTree = "<group>"; };
 		9D5ED202DD3183805D94FF74 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		B6480423992CBD0AAE339C72 /* ClockContinuity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClockContinuity.swift; sourceTree = "<group>"; };
 		BAFE9E19C8056395586DD499 /* WatchBoxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchBoxView.swift; sourceTree = "<group>"; };
@@ -78,6 +80,7 @@
 			children = (
 				B6480423992CBD0AAE339C72 /* ClockContinuity.swift */,
 				CF2988997690DCF8411B3AD8 /* Models.swift */,
+				8FA7AABE6A7CB8712E634D42 /* ReadingPrefill.swift */,
 				007CAE196BB32DC0573325D1 /* Repository.swift */,
 			);
 			path = Core;
@@ -243,6 +246,7 @@
 				5647EA0BCFF9FC69EEE6989D /* CoverChooser.swift in Sources */,
 				E32AB392EDD11D637A5C80A6 /* Models.swift in Sources */,
 				9919255AA836B07B13F15021 /* OvercoilApp.swift in Sources */,
+				0DCD161EB94F521B89541D1A /* ReadingPrefill.swift in Sources */,
 				EDBBA49DEE8F0766D450D310 /* Repository.swift in Sources */,
 				9355DF8E1651D1C3C513142E /* RunsView.swift in Sources */,
 				611D0C200EBFAA562B84623E /* SettingsView.swift in Sources */,
@@ -316,7 +320,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 3XLD352MG9;
 				ENABLE_NS_ASSERTIONS = NO;
@@ -376,7 +380,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = 3XLD352MG9;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;

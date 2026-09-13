@@ -4,6 +4,11 @@
   target; `OvercoilUITests` is a simulator test runner, not a provisioned app resource.
 - `Core/Models.swift`: Codable value model, fixed-offset date interpretation,
   first-to-latest rate, display rounding, and pure clock-anchor mapping.
+- `Core/ReadingPrefill.swift`: predicts watch time from the last observed offset,
+  adding elapsed measured drift once at least two prior valid readings exist.
+  Suggestions never mutate reference instants or count as observations. No historical
+  reading after the new capture instant participates; compromised clocks fall back
+  to capture-time phone values.
 - `Core/Repository.swift`: single-owner transaction boundary. Files commit before
   the one JSON manifest; visible state changes only after successful manifest commit.
   Atomic file replacement uses temporary file → synchronize → rename. No in-place
@@ -24,7 +29,10 @@
   run's headline while keeping all observations. Undetected corrections remain a
   stated limitation, including changes outside a continuous foreground context.
 - `Views/`: Watch Box, details, capture, frozen entry, runs/history/reading correction,
-  reference-photo selection/crop and Settings. Crops use normalized center and a
+  reference-photo selection/crop and Settings. Camera dark appearance is scoped with
+  an environment override, never a presentation-wide preferred-color-scheme change.
+  Ivory time entry explicitly uses light appearance and dark ink. The simulator
+  camera uses the same appearance modifier, so camera→entry/retake tests catch leaks. Crops use normalized center and a
   side fraction of the shorter orientation-corrected image edge.
 - `SimulatorFixture.swift`: `targetEnvironment(simulator) && DEBUG` only, gated by
   `--ui-testing`. Clearly labeled synthetic dial and fixed timestamps. It is not

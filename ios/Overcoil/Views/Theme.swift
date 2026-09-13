@@ -120,3 +120,13 @@ func zoneDescription(_ seconds: Int) -> String {
     let sign = seconds < 0 ? "−" : "+"
     return String(format: "UTC%@%02d:%02d", sign, abs(seconds) / 3600, (abs(seconds) % 3600) / 60)
 }
+
+// Shared by the real camera and the simulator capture fixture, so transition
+// tests exercise the same appearance boundary as a physical photo capture.
+struct CameraSurface: ViewModifier {
+    func body(content: Content) -> some View {
+        // Keep dark styling local to the camera. preferredColorScheme propagates
+        // to the entire presentation and can leak into the ivory reading screen.
+        content.foregroundStyle(.white).background(.black).environment(\.colorScheme, .dark)
+    }
+}

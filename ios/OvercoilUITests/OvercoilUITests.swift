@@ -90,6 +90,50 @@ import UIKit
         tap("Close")
         XCTAssertTrue(app.buttons["Start timing run"].waitForExistence(timeout: 5))
     }
+    func assertDarkText(_ element: XCUIElement) {
+        XCTAssertTrue(element.waitForExistence(timeout: 5))
+        let shot = app.screenshot().image.cgImage!
+        let scale = CGFloat(shot.width) / app.frame.width
+        let frame = element.frame
+        let rect = CGRect(x: frame.minX * scale, y: frame.minY * scale,
+                          width: frame.width * scale, height: frame.height * scale).integral
+        guard let crop = shot.cropping(to: rect), crop.width > 0, crop.height > 0 else { return XCTFail("Text is not in the screenshot") }
+        var rgba = [UInt8](repeating: 0, count: crop.width * crop.height * 4)
+        rgba.withUnsafeMutableBytes { bytes in
+            let context = CGContext(data: bytes.baseAddress, width: crop.width, height: crop.height, bitsPerComponent: 8,
+                                    bytesPerRow: crop.width * 4, space: CGColorSpaceCreateDeviceRGB(),
+                                    bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
+            context.draw(crop, in: CGRect(x: 0, y: 0, width: crop.width, height: crop.height))
+        }
+        let darkPixels = stride(from: 0, to: rgba.count, by: 4).filter { rgba[$0] < 90 && rgba[$0 + 1] < 90 && rgba[$0 + 2] < 90 }.count
+        XCTAssertGreaterThan(Double(darkPixels) / Double(crop.width * crop.height), 0.02, "Heading needs dark ink on the ivory surface—not white-on-white.")
+    }
+    func testReadableEntryAfterDarkCameraAndRetake() {
+        addWatch(); tap("Start timing run"); takePhoto()
+        let heading = app.staticTexts["What time does your watch show?"]
+        screenshot("14-entry-after-dark-camera")
+        assertDarkText(heading)
+        enterSeconds("08"); tap("Retake"); takePhoto()
+        screenshot("15-entry-after-dark-retake")
+        assertDarkText(heading)
+        enterSeconds("14"); tap("Save reading")
+        XCTAssertTrue(app.staticTexts["14 seconds ahead"].waitForExistence(timeout: 5))
+    }
+    func testSubsequentPrefillUsesWatchOffsetAndMeasuredDrift() {
+        addWatch(); tap("Start timing run"); takePhoto(); enterSeconds("08"); tap("Save reading")
+        tap("Add reading"); takePhoto()
+        XCTAssertEqual(app.pickerWheels.element(boundBy: 2).value as? String, "08")
+        XCTAssertTrue(app.staticTexts["Suggested from last offset"].exists)
+        screenshot("16-prefill-from-last-offset")
+        enterSeconds("14"); tap("Save reading")
+        tap("Add reading"); takePhoto()
+        XCTAssertEqual(app.pickerWheels.element(boundBy: 2).value as? String, "20")
+        XCTAssertTrue(app.staticTexts["Suggested from offset + drift"].exists)
+        screenshot("17-prefill-from-measured-drift")
+        tap("Cancel")
+        XCTAssertTrue(app.staticTexts["rateValue"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["rateValue"].label.contains("+6.0"))
+    }
     func testPrimaryButtonHasContentInsets() {
         let title = "Add your first watch"
         let button = app.buttons[title]

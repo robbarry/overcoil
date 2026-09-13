@@ -113,7 +113,7 @@ struct CameraView: View {
                     Spacer(); Color.clear.frame(width: 50)
                 }
             }.padding(24)
-        }.foregroundStyle(.white).background(.black).preferredColorScheme(.dark)
+        }.modifier(CameraSurface())
             .task { visible = true; await start() }
             .onDisappear { visible = false; service.stop() }
             .onReceive(NotificationCenter.default.publisher(for: UIApplication.didEnterBackgroundNotification)) { _ in
@@ -155,13 +155,16 @@ struct CaptureFlow: View {
         Group {
             if let draft, let capture = draft.capture {
                 let run = store.database.runs.first { $0.id == runID }
-                let previous = runID.flatMap { store.database.readings(in: $0).last?.offset } ?? 0
+                let prior = runID.map { store.database.readings(in: $0) } ?? []
+                let prefill = ReadingPrefill.predict(at: capture.reference, readings: prior,
+                    clockCompromised: (run?.clockCompromised ?? false) || capture.clockDiscontinuity)
                 NavigationStack {
                     TimeEntryView(image: draft.image, capture: capture,
-                                  initial: .at(capture.reference, offset: run?.basisUTCOffset ?? capture.localUTCOffset),
-                                  previousOffset: previous, saving: saving, buttonTitle: "Save reading") { value in
+                                  initial: .at(prefill.instant, offset: run?.basisUTCOffset ?? capture.localUTCOffset),
+                                  previousOffset: prefill.expectedOffset, saving: saving, buttonTitle: "Save reading",
+                                  prefillDescription: prefill.explanation, predictionLabel: prefill.shortLabel) { value in
                         proposed = value
-                        if runID != nil && abs((value.instant?.timeIntervalSince(capture.reference) ?? 0) - previous) > 120 { jumpWarning = true }
+                        if runID != nil && abs((value.instant?.timeIntervalSince(capture.reference) ?? 0) - prefill.expectedOffset) > 120 { jumpWarning = true }
                         else { save(value) }
                     }.navigationTitle("Read the dial").navigationBarTitleDisplayMode(.inline)
                         .toolbar {
@@ -172,7 +175,7 @@ struct CaptureFlow: View {
             } else {
                 CameraView(watchName: watchName, onClose: { dismiss() }, onPhoto: { draft = $0 })
             }
-        }.confirmationDialog("That is a large change from the previous offset. Check your entry. Were the hands reset or did the watch stop?", isPresented: $jumpWarning, titleVisibility: .visible) {
+        }.confirmationDialog("That differs a lot from the watch’s expected time. Check your entry. Were the hands reset or did the watch stop?", isPresented: $jumpWarning, titleVisibility: .visible) {
             Button("Entry is correct — keep same run") { if let proposed { save(proposed) } }
             Button("Hands reset / stopped — new run") { if let proposed { save(proposed, reason: "Hands reset or watch stopped") } }
             Button("Check entry", role: .cancel) {}

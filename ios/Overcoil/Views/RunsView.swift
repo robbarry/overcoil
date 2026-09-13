@@ -136,7 +136,7 @@ struct ReadingDetailView: View {
                 .sheet(isPresented: $editing) {
                     if let image = store.image(reading.photoID) {
                         NavigationStack {
-                            TimeEntryView(image: image, capture: reading.capture, initial: reading.entered, previousOffset: reading.offset, buttonTitle: "Save correction") { entered in
+                            TimeEntryView(image: image, capture: reading.capture, initial: reading.entered, previousOffset: reading.offset, buttonTitle: "Save correction", prefillDescription: "Saved watch time. Corrections change only this reading, not the original photo or reference timestamp.") { entered in
                                 if store.perform({ try $0.correctReading(readingID, entered: entered) }) { editing = false }
                                 else { editError = store.failure; store.failure = nil }
                             }.navigationTitle("Correct reading").navigationBarTitleDisplayMode(.inline)

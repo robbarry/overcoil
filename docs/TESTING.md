@@ -7,6 +7,9 @@
    the normal seconds-hand time from the frozen photo. No synchronization needed.
 3. Save. There should be an offset, one reading, and an automatic reference photo—
    **no daily rate yet**. Wait until the next day for a more useful second reading.
+   Later time pickers suggest the watch's expected time from its prior offset, and
+   measured drift once available. Still check the photograph; predictions are not
+   observations. The reference timestamp itself always remains the actual capture.
 4. Change the reference photo using Photos, a cover-only shot, or a saved image.
    Adjust the square crop. Reading evidence must remain unchanged.
 5. Open the current run and a reading, correct its time, and inspect the new result.
@@ -60,3 +63,16 @@ alignment and physical interaction remain the principal hands-on validation task
 This is a local development install, not a TestFlight or App Store release. A new
 App Store Connect app record, distribution export verification, tester setup, and
 release metadata remain separate future work.
+
+## Build 5 follow-up
+
+Rob reported white-on-ivory text after a physical capture. A regression test that
+shared the real camera's old presentation-wide dark scheme reproduced a heading
+with zero dark pixels. Dark camera styling is now local, while reading entry
+explicitly uses light appearance and dark ink. The test checks actual rendered
+heading pixels after capture and retake, rather than only checking that text exists.
+
+Rob also revised subsequent-reading defaults to predicted watch time. Core tests
+cover first/one/two readings, real elapsed intervals, future/invalid observations,
+compromised clocks, and fixed-offset interpretation; native UI tests check +8-second
+and then +20-second suggestions in the +8 → +14 over 24 hours example.

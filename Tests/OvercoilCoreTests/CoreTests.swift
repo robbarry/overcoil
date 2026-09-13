@@ -75,6 +75,33 @@ final class CoreTests: XCTestCase {
         XCTAssertNotEqual(token, newToken); XCTAssertFalse(afterReset)
         XCTAssertFalse(ClockContinuity().isCurrent(newToken))
     }
+    func testPrefillStartsWithPhoneThenUsesOffsetThenDrift() {
+        let first = reading(start, offset: 8)
+        let second = reading(start.addingTimeInterval(86400), offset: 14)
+        let target = start.addingTimeInterval(172800)
+        let empty = ReadingPrefill.predict(at: target, readings: [])
+        XCTAssertEqual(empty.instant, target); XCTAssertEqual(empty.source, .phoneClock)
+        let one = ReadingPrefill.predict(at: target, readings: [first])
+        XCTAssertEqual(one.expectedOffset, 8); XCTAssertEqual(one.source, .lastOffset)
+        let two = ReadingPrefill.predict(at: target, readings: [second, first])
+        XCTAssertEqual(two.expectedOffset, 20); XCTAssertEqual(two.rate, 6); XCTAssertEqual(two.source, .measuredRate)
+        XCTAssertEqual(two.instant, target.addingTimeInterval(20))
+        let halfDay = ReadingPrefill.predict(at: second.reference.addingTimeInterval(43200), readings: [first, second])
+        XCTAssertEqual(halfDay.expectedOffset, 17)
+        XCTAssertEqual(first.offset, 8); XCTAssertEqual(second.offset, 14)
+    }
+    func testPrefillUsesActualIntervalsAndIgnoresFutureOrInvalidMeasurements() {
+        let first = reading(start, offset: 8)
+        let second = reading(start.addingTimeInterval(43200), offset: 14)
+        let target = second.reference.addingTimeInterval(21600)
+        let predicted = ReadingPrefill.predict(at: target, readings: [first, second, reading(target.addingTimeInterval(1), offset: 500)])
+        XCTAssertEqual(predicted.expectedOffset, 17); XCTAssertEqual(predicted.rate, 12)
+        var invalid = second; invalid.timingValid = false
+        XCTAssertEqual(ReadingPrefill.predict(at: target, readings: [first, invalid]).expectedOffset, 8)
+        XCTAssertEqual(ReadingPrefill.predict(at: target, readings: [first, second], clockCompromised: true).source, .phoneClock)
+        let inferred = WatchTime.at(predicted.instant, offset: -14400)
+        XCTAssertEqual(inferred.instant, target.addingTimeInterval(17))
+    }
     func testCloseFocusLensSelectionRequiresRealAutofocus() {
         XCTAssertTrue(CaptureLensPolicy.preferUltraWide(ultraFocusMM: 20, ultraHasAutofocus: true, wideFocusMM: 150))
         XCTAssertFalse(CaptureLensPolicy.preferUltraWide(ultraFocusMM: 20, ultraHasAutofocus: false, wideFocusMM: 150))

@@ -52,7 +52,7 @@ struct SimulatorCameraView: View {
             }.buttonStyle(.borderedProminent)
             Button("Close", action: onClose)
             if let error { Text(error) }
-        }.padding(30)
+        }.padding(30).modifier(CameraSurface())
     }
 }
 #endif

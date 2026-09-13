@@ -34,6 +34,8 @@ struct TimeEntryView: View {
     var previousOffset: Double
     var saving: Bool
     var buttonTitle: String
+    var prefillDescription: String
+    var predictionLabel: String?
     var onSave: (WatchTime) -> Void
     @State private var entered: WatchTime
     @State private var manualDate = false
@@ -43,9 +45,13 @@ struct TimeEntryView: View {
     private let twelveHour: Bool
 
     init(image: UIImage, capture: CaptureMetadata, initial: WatchTime, previousOffset: Double = 0,
-         saving: Bool = false, buttonTitle: String, onSave: @escaping (WatchTime) -> Void) {
+         saving: Bool = false, buttonTitle: String,
+         prefillDescription: String = "Prefilled from phone time at capture. It stays frozen while you read the dial.",
+         predictionLabel: String? = nil, onSave: @escaping (WatchTime) -> Void) {
         self.image = image; self.capture = capture; self.previousOffset = previousOffset
         self.saving = saving; self.buttonTitle = buttonTitle; self.onSave = onSave
+        self.prefillDescription = prefillDescription
+        self.predictionLabel = predictionLabel
         _entered = State(initialValue: initial)
         twelveHour = DateFormatter.dateFormat(fromTemplate: "j", options: 0, locale: .current)?.contains("a") ?? false
     }
@@ -85,7 +91,7 @@ struct TimeEntryView: View {
                         Text("AM").tag(0); Text("PM").tag(1)
                     }.pickerStyle(.segmented)
                 }
-                Text("Prefilled from photo capture time. It stays frozen while you read the dial.").font(.caption).foregroundStyle(.secondary).multilineTextAlignment(.center)
+                Text(prefillDescription).font(.caption).foregroundStyle(.secondary).multilineTextAlignment(.center)
                 DisclosureGroup("Date and time zone", isExpanded: $advanced) {
                     VStack(alignment: .leading, spacing: 12) {
                         Text("\(entered.year)-\(String(format: "%02d", entered.month))-\(String(format: "%02d", entered.day)) · \(zoneDescription(entered.utcOffset))").font(.subheadline).monospacedDigit()
@@ -106,7 +112,8 @@ struct TimeEntryView: View {
                     .font(.caption).foregroundStyle(.secondary)
                 if dynamicTypeSize.isAccessibilitySize { saveSection }
             }.padding(18)
-        }.background(Theme.ivory)
+        }.background(Theme.ivory).foregroundStyle(Theme.ink)
+            .environment(\.colorScheme, .light).preferredColorScheme(.light)
             .safeAreaInset(edge: .bottom) {
                 if !dynamicTypeSize.isAccessibilitySize { saveSection.padding(16).background(Theme.ivory) }
             }
@@ -118,6 +125,7 @@ struct TimeEntryView: View {
     }
     private var saveSection: some View {
         VStack(spacing: 10) {
+            if let predictionLabel { Text(predictionLabel).font(.caption).foregroundStyle(.secondary) }
             if let instant = entered.instant {
                 Text(RunResult.displayOffset(instant.timeIntervalSince(capture.reference))).font(.headline).monospacedDigit().multilineTextAlignment(.center)
             }
