@@ -42,7 +42,8 @@ Rob is actively using this app. **Never uninstall, reset, seed fixtures into, or
 
 ## Current delivery state
 
-Installed on the phone: **build 9**, source `ff30d597c736`, including iCloud and the clean grid.
+Installed on the phone: **build 10**, source `81f38968bc09`, including iCloud, the clean grid,
+and clearer Brand/Model/optional Nickname identity fields.
 The iCloud worktree/branch is still separate pending the live restore check. Root `main` has the
 UI/statistics/docs changes but not iCloud runtime; **do not accidentally downgrade the phone by
 building/installing main's older target**. Use `.build/icloud-worktree` for this installed feature set.
@@ -151,3 +152,20 @@ implementation/receipt references. Main has the independently shipped UI/statist
 At the last live check the phone reported the current Watch Box/photos uploaded to iCloud Drive.
 The live isolated-restore receipt was still absent. Recheck rather than treating that negative as permanent.
 The user's real timings have a verified private backup. Preserve that boundary while finishing verification.
+
+
+### Build 10 identity correction handoff (2026-09-13)
+
+The in-place install succeeded, but maintenance launch failed with the phone **Locked**.
+The private seven-watch request is staged as `identity-corrections.json` in the app's
+local store folder. **Corrections are not yet applied.** Ask Rob to unlock and leave
+Home Screen, then launch a fresh process with `--apply-watch-identities --verify-icloud-restore`.
+Do not simply claim that opening the app normally applies this explicit debug operation.
+Source is on `feature/icloud-drive-sync`; no personal inventory is in the public commit.
+Main checkout `.build/identity-backup-path.txt` points to the fresh verified private
+backup/request. Check that pointer, read the receipt, compare all non-identity records
+and image checksums, and verify cloud upload before reporting corrected data.
+Core tests: 31 passed. Native identity creation tests passed on iPhone 17 Pro and SE3
+simulators; two-reading/correction/relaunch regression passed. Rendered labels and pinned
+Save inspected at both sizes. Synthetic native maintenance launch verified the checked
+transaction, recovery manifest, success receipt, and disabled fixture cloud traffic.
