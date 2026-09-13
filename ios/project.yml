@@ -23,6 +23,8 @@ targets:
         SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD: NO
         SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD: NO
         GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_FILE: Info.plist
+        OVERCOIL_SOURCE_REVISION: local-xcode-build
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         INFOPLIST_KEY_CFBundleDisplayName: Overcoil
         INFOPLIST_KEY_UILaunchScreen_Generation: YES

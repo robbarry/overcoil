@@ -92,7 +92,7 @@ def main():
     if subprocess.check_output(["git", "status", "--porcelain"], cwd=ROOT, text=True).strip():
         revision += "-dirty"
     command = ["xcodebuild", "-project", str(ROOT / "ios/Overcoil.xcodeproj"), "-scheme", "Overcoil",
-               "-derivedDataPath", str(args.derived_data.resolve()), "INFOPLIST_KEY_OvercoilSourceRevision=" + revision]
+               "-derivedDataPath", str(args.derived_data.resolve()), "OVERCOIL_SOURCE_REVISION=" + revision]
     if args.command == "simulator":
         command += ["-destination", "generic/platform=iOS Simulator", "CODE_SIGNING_ALLOWED=NO", "build"]
     else:
