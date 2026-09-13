@@ -1,0 +1,17 @@
+.DS_Store
+.venv/
+__pycache__/
+.build/
+ios/.env
+ios/signing.xcconfig
+*.p8
+*.p12
+*.mobileprovision
+xcuserdata/
+*.xcuserstate
+.swiftpm/
+.env
+.env.*
+!.env.example
+*.xcresult/
+user-data/

@@ -1,0 +1,43 @@
+{
+  "verified_at_utc": "2026-09-13T13:55:25.560315+00:00",
+  "xcode": "26.4.1 (17E202)",
+  "simulator_build_succeeded": true,
+  "signed_builds": [
+    {
+      "lane": "device",
+      "signature_verified": true,
+      "bundle_id": "com.robbarry.overcoil",
+      "signed_app_identifier": "3XLD352MG9.com.robbarry.overcoil",
+      "device_family": [
+        1
+      ],
+      "version": "0.1.0",
+      "build": "1",
+      "profile_name": "iOS Team Provisioning Profile: *",
+      "profile_app_identifier": "3XLD352MG9.*",
+      "profile_expires_utc": "2027-04-26T00:47:32",
+      "development_signature": true,
+      "binary_sha256": "3243f40ebc52be4b28b2bb8d93460806ab90e215a7ad4bf4faa24e911ce11d26"
+    },
+    {
+      "lane": "archive",
+      "signature_verified": true,
+      "bundle_id": "com.robbarry.overcoil",
+      "signed_app_identifier": "3XLD352MG9.com.robbarry.overcoil",
+      "device_family": [
+        1
+      ],
+      "version": "0.1.0",
+      "build": "1",
+      "profile_name": "iOS Team Provisioning Profile: *",
+      "profile_app_identifier": "3XLD352MG9.*",
+      "profile_expires_utc": "2027-04-26T00:47:32",
+      "development_signature": true,
+      "binary_sha256": "8a88e271a3ce4bd5069baaf9c8badeb953b9de0350822666e0fd8a35b823df29"
+    }
+  ],
+  "device_install_tested": false,
+  "distribution_export_tested": false,
+  "uploaded": false,
+  "app_store_connect_record_created": false
+}
