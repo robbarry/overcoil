@@ -198,6 +198,27 @@ import UIKit
         XCTAssertFalse(app.staticTexts["Run in progress"].exists)
         screenshot("21-watch-box-pooled-rate")
     }
+    func testWatchBoxPhotosTopAlignWithDifferentCardText() {
+        addWatch(); tap("Start timing run"); takePhoto(); enterSeconds("08"); tap("Save reading")
+        tap("Add reading"); takePhoto(); enterSeconds("14"); tap("Save reading")
+        app.terminate(); app.launch()
+        tap("addWatch")
+        let name = app.textFields["watchName"]; name.tap(); name.typeText("Second")
+        tap("saveWatch")
+        tap("Change reference photo"); tap("Take a photo"); tap("Take simulator test photo"); tap("saveReferencePhoto")
+        app.terminate(); app.launch()
+        let first = app.images["Reference photo for Test watch"].firstMatch
+        let second = app.images["Reference photo for Second"].firstMatch
+        XCTAssertTrue(first.waitForExistence(timeout: 5)); XCTAssertTrue(second.exists)
+        XCTAssertEqual(first.frame.minY, second.frame.minY, accuracy: 0.5)
+        XCTAssertEqual(first.frame.height, second.frame.height, accuracy: 0.5)
+        XCTAssertEqual(app.staticTexts.matching(NSPredicate(format: "label CONTAINS[c] %@", "readings")).count, 0)
+        XCTAssertEqual(app.staticTexts.matching(NSPredicate(format: "label CONTAINS[c] %@", "early estimate")).count, 0)
+        XCTAssertEqual(app.staticTexts.matching(NSPredicate(format: "label CONTAINS[c] %@", "rate yet")).count, 0)
+        XCTAssertEqual(app.staticTexts.matching(NSPredicate(format: "label CONTAINS[c] %@", "as of")).count, 0)
+        XCTAssertFalse(app.staticTexts["Start a timing run"].exists)
+        screenshot("22-clean-top-aligned-watch-photos")
+    }
     func testPrimaryButtonHasContentInsets() {
         let title = "Add your first watch"
         let button = app.buttons[title]

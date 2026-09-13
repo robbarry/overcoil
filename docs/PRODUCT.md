@@ -92,7 +92,7 @@ when any valid run has two readings. Combine each run's first-to-latest offset
 change and divide by the sum of those runs' actual measured seconds. This is a
 duration-weighted average—not an unweighted mean and never a comparison across
 reset offsets. Single-reading runs, zero spans and compromised clocks contribute
-no rate. Show the contributing reading/run counts, measured duration, and date.
+no rate. Watch detail shows the contributing reading/run counts, measured duration, and date.
 “Early estimate” indicates that no contributing run yet spans 24 hours; it is not
 a confidence percentage. All valid runs currently contribute; a future servicing
 boundary will start a new statistics epoch.
@@ -108,3 +108,12 @@ iCloud Drive folder, including restoration on another Overcoil installation. The
 local store remains available offline; conflicts require an explicit choice, with
 recovery copies retained. No Mac app is required to browse the JSON and original
 photos. This supersedes the original local-only/no-cloud v1 default.
+
+## Watch Box visual simplification
+
+Rob explicitly removed the extra metadata from collection cards. Cards now contain
+only the reference photo, name/model, and one timing value when available: overall
+seconds/day, or the latest offset if a rate cannot yet be calculated. No active dot,
+reading count, measurement date, “early estimate,” “start a timing run,” or “no rate
+yet” placeholder belongs on the grid. Supporting information remains on detail
+screens. Grid items align at their top edges despite unequal caption heights.
