@@ -38,7 +38,7 @@ for Finder access. This is NOT merely a one-way export.
 Core tests exercise two replicas (initial restore, second-device edit, return sync),
 subsecond preservation, missing/corrupt photos, divergent revisions, and refusal to
 replace a locally changed library. The main UI tests remain isolated from iCloud.
-Physical upload and isolated-restore verification is the remaining release gate.
+The phone has now reported the current library and photos uploaded, with uploaded-state and checksum checks. The live isolated-restore check is still pending; a second physical device has not been exercised.
 
 ## Signing setup
 
