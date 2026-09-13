@@ -19,6 +19,15 @@ struct CloudReadingSummary: Codable, Equatable, Sendable {
     var photo: String
 }
 
+struct CloudWatchSummary: Codable, Equatable, Sendable {
+    var id: UUID
+    var name: String
+    var rateSecondsPerDay: Double?
+    var measuredSeconds: Double
+    var contributingReadings: Int
+    var contributingRuns: Int
+}
+
 struct CloudLibrary: Codable, Sendable {
     var formatVersion = 1
     var revision: String
@@ -27,6 +36,7 @@ struct CloudLibrary: Codable, Sendable {
     var database: Database
     var photoFiles: [CloudPhotoFile]
     var readingsForInspection: [CloudReadingSummary]
+    var watchesForInspection: [CloudWatchSummary]? = nil
     var dateEncodingNote = "The database preserves dates as exact seconds since 2001-01-01 UTC. readingsForInspection provides readable UTC timestamps; its values are derived, not editable inputs."
 
     static func hash(_ data: Data) -> String { SHA256.hash(data: data).map { String(format: "%02x", $0) }.joined() }
@@ -57,7 +67,12 @@ struct CloudLibrary: Codable, Sendable {
             let watch = database.watches.first { $0.id == run?.watchID }
             return CloudReadingSummary(id: reading.id, watch: watch?.name ?? "Watch", referenceUTC: reading.reference.ISO8601Format(.init(includingFractionalSeconds: true)), watchUTC: reading.entered.instant!.ISO8601Format(.init(includingFractionalSeconds: true)), offsetSeconds: reading.offset, photo: photos.first { $0.id == reading.photoID }!.originalPath)
         }
-        return Self(revision: try revision(of: database), parentRevision: parentRevision, publishedAt: Date(), database: database, photoFiles: photos, readingsForInspection: summaries)
+        let watches = database.watches.map { watch in
+            let stats = WatchStatistics.calculate(database: database, watchID: watch.id)
+            return CloudWatchSummary(id: watch.id, name: watch.name, rateSecondsPerDay: stats.rate,
+                                     measuredSeconds: stats.measuredSeconds, contributingReadings: stats.contributingReadingCount, contributingRuns: stats.contributingRunCount)
+        }
+        return Self(revision: try revision(of: database), parentRevision: parentRevision, publishedAt: Date(), database: database, photoFiles: photos, readingsForInspection: summaries, watchesForInspection: watches)
     }
     func encoded() throws -> Data {
         let encoder = JSONEncoder(); encoder.outputFormatting = [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]

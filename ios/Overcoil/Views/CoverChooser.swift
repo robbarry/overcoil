@@ -60,7 +60,7 @@ struct CoverChooser: View {
                 }.padding(20)
             }.background(Theme.ivory).navigationTitle("Reference photo").navigationBarTitleDisplayMode(.inline)
                 .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Cancel") { importTask?.cancel(); dismiss() } } }
-        }.onChange(of: selection) { _, item in
+        }.modifier(CloudEditingGuard()).onChange(of: selection) { _, item in
             importTask?.cancel()
             guard let item else { return }
             importing = true
@@ -88,7 +88,7 @@ struct CoverChooser: View {
                 else { error = store.failure; store.failure = nil }
                 return success
             }
-        }.confirmationDialog("Delete this saved photo? If it is your cover, the earliest remaining photo will replace it, or a placeholder. Reading evidence must be deleted as a reading first.", isPresented: Binding(get: { deleteID != nil }, set: { if !$0 { deleteID = nil } }), titleVisibility: .visible) {
+        }.confirmationDialog("Delete this saved photo? If it is your cover, the earliest remaining photo will replace it, or a placeholder. Reading evidence must be deleted as a reading first. iCloud recovery copies may remain in Drive.", isPresented: Binding(get: { deleteID != nil }, set: { if !$0 { deleteID = nil } }), titleVisibility: .visible) {
             Button("Delete photo", role: .destructive) {
                 if let id = deleteID, !store.perform({ try $0.deletePhoto(id) }) { error = store.failure; store.failure = nil }
                 deleteID = nil
@@ -156,7 +156,7 @@ struct CropEditor: View {
                     ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() }.disabled(saving) }
                     ToolbarItem(placement: .confirmationAction) { Button("Save", action: save).disabled(saving).accessibilityIdentifier("saveReferencePhoto") }
                 }
-        }.preferredColorScheme(.light)
+        }.preferredColorScheme(.light).modifier(CloudEditingGuard())
     }
     private func save() {
         guard !saving else { return }; saving = true

@@ -130,3 +130,12 @@ struct CameraSurface: ViewModifier {
         content.foregroundStyle(.white).background(.black).environment(\.colorScheme, .dark)
     }
 }
+
+struct CloudEditingGuard: ViewModifier {
+    @Environment(AppStore.self) private var store
+    @State private var active = false
+    func body(content: Content) -> some View {
+        content.onAppear { if !active { active = true; store.beginEditing() } }
+            .onDisappear { if active { active = false; store.endEditing() } }
+    }
+}

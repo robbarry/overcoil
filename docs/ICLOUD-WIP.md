@@ -1,36 +1,57 @@
-# iCloud work in progress — not in the installed app
+# iCloud Drive sync — verification in progress
 
-Rob clarified the requirement: a browsable iCloud Drive folder holding the complete
-library and original photos, automatic two-way sync between Overcoil installations,
-and restoration on a new installation signed into the same iCloud account. Not a
-one-way export. No Mac app is currently requested; Finder access remains possible.
+Rob's requirement is a browsable iCloud Drive folder containing the complete Watch
+Box and original photos, automatic two-way sync between Overcoil installations,
+and restore on a new device using the same iCloud account. No Mac app is required
+for Finder access. This is NOT merely a one-way export.
 
-This branch is groundwork only, not an enabled sync feature. It contains:
-- Overcoil-only iCloud Documents entitlements / visible container metadata.
-- `CloudLibrary`: full-precision native records, original/thumbnail SHA256 manifests,
-  safe filenames, readable UTC/offset inspection rows, and revision validation.
-- Pure baseline/local/remote sync decisions: upload, download, unchanged, initial
-  empty, conflict, or missing cloud library. Divergent edits must not be overwritten.
-- A guarded repository import that validates every photo and the still-current local
-  revision, retains a local recovery copy, then atomically commits imported records.
+## Implemented on this branch
 
-Still required: coordinated iCloud file I/O, metadata discovery/upload status,
-account-switch protection, automatic scheduling, safe conflict UI/recovery,
-first-launch restore integration, multi-replica tests, and physical iCloud verification.
-The local database remains the offline working copy. Proposed shared document:
-`Library.overcoil.json`, immutable `Photos/` and `Thumbnails/`, plus recovery versions.
-Never treat callback success or local iCloud-container writes as confirmed uploads.
+- Dedicated `iCloud.com.robbarry.overcoil` CloudDocuments container, visible as
+  Overcoil in iCloud Drive. No Tank container or signing bridge is reused.
+- One authoritative `Library.overcoil.json` with exact native timestamps/records,
+  readable UTC reading/overall-watch summaries, safe photo paths and SHA256 checksums.
+  `Photos/` contains originals; `Thumbnails/` previews; `Recovery/` older documents.
+- A local offline database remains usable. A new empty installation downloads the
+  existing cloud library; an empty/missing cloud folder never replaces local data.
+- Baseline/local/remote revision checks choose upload, download, unchanged, or a
+  visible conflict. Concurrent divergent changes are not silently overwritten.
+- Every cloud operation is coordinated. The shared document changes atomically,
+  after immutable photos are present. A pre-write comparison prevents overwriting
+  a document that changed during the operation.
+- Conflict choices retain each available cloud version and its photos locally,
+  plus recovery documents in Drive, before explicitly replacing the active copy.
+  Original cloud photo files are retained for recovery, not automatically deleted.
+- Imports validate all checksums and the still-current local revision, retain a
+  local recovery copy, and atomically commit. Imports wait while an edit is open.
+- Account changes pause sync until confirmation. Simulator UI fixtures never start
+  iCloud operations. No backend/analytics or account credentials are embedded.
+- Metadata notifications plus foreground/local-save triggers schedule sync. Settings
+  exposes pending uploads, errors, conflicts and the last verified upload. “Uploaded”
+  requires Apple's per-file uploaded state plus photo checksum checks.
+- A safe restore check uses an isolated local repository, never clears the real
+  library, and writes a bounded private receipt. Debug launch argument
+  `--verify-icloud-restore` requests this check after the initial verified upload.
 
-## Signing blocker (measured)
+## Verification
 
-Automatic iCloud provisioning using the existing ASC API key returned Authentication
-failed; the public ASC read-only identifier lookup still succeeds with that key.
-Trying Xcode's account-based route returned `No Accounts: Add a new account in
-Accounts settings`. The existing wildcard development profile has no iCloud
-entitlements. Rob was asked to sign into Xcode → Settings → Accounts on Pollux.
-No signing identities were exported/revoked and no Tank capabilities were changed.
-The only requested container is `iCloud.com.robbarry.overcoil` on team 3XLD352MG9.
+Core tests exercise two replicas (initial restore, second-device edit, return sync),
+subsecond preservation, missing/corrupt photos, divergent revisions, and refusal to
+replace a locally changed library. The main UI tests remain isolated from iCloud.
+Physical upload and isolated-restore verification is the remaining release gate.
 
-The wheel/layout fix was separately shipped as build 6 on main. This branch was
-parked intact while responding to Rob's follow-up requesting all-run watch statistics
-and a top Save control for reference-photo cropping.
+## Signing setup
+
+The original API-key-only bootstrap failed for the new iCloud capability, while
+ordinary signing and ASC reads worked. Xcode's account route reported No Accounts.
+Rob then signed into Xcode. A subsequent account-based build succeeded; its actual
+signed app/profile were verified for team3XLD352MG9, com.robbarry.overcoil,
+CloudDocuments and the exact iCloud/ubiquity container identifiers. No working key
+was rotated and no Tank certificates/profiles were removed.
+
+User data and diagnostics stay in private local storage/iCloud, never the public
+repo. The original phone library has a separate checksummed Mac backup. Build 7's
+in-place update preserved its store byte-for-byte; no uninstall/reset was used.
+
+Use one reference phone per timing run. Sync does not certify that two devices'
+wall clocks agree; switching the reference phone should start a new run.

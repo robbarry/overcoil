@@ -113,7 +113,7 @@ struct CameraView: View {
                     Spacer(); Color.clear.frame(width: 50)
                 }
             }.padding(24)
-        }.modifier(CameraSurface())
+        }.modifier(CameraSurface()).modifier(CloudEditingGuard())
             .task { visible = true; await start() }
             .onDisappear { visible = false; service.stop() }
             .onReceive(NotificationCenter.default.publisher(for: UIApplication.didEnterBackgroundNotification)) { _ in

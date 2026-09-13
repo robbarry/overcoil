@@ -66,7 +66,7 @@ expressed in words, not only color. No mockup watches are preloaded.
 
 ## Explicit non-goals
 
-Cloud sync, accounts, OCR/automatic dial reading, social sharing, reminders, exports,
+Developer-hosted accounts, OCR/automatic dial reading, social sharing, reminders,
 iPad/Catalyst, App Store publication, and certified measurement accuracy.
 
 ## Physical measurement validation gate
@@ -100,3 +100,11 @@ boundary will start a new statistics epoch.
 Add/Edit Watch has a fixed header outside the scrolling form, keeping Save visible
 even with the keyboard or a chosen photo. Reference-photo cropping also offers a
 top Save action; both save locations share the same duplicate/save-failure guard.
+
+## iCloud follow-up
+
+Rob requested automatic backup AND two-way synchronization through a browsable
+iCloud Drive folder, including restoration on another Overcoil installation. The
+local store remains available offline; conflicts require an explicit choice, with
+recovery copies retained. No Mac app is required to browse the JSON and original
+photos. This supersedes the original local-only/no-cloud v1 default.

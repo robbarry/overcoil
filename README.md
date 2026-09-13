@@ -1,8 +1,8 @@
 # Overcoil
 
 Native iPhone watch timing journal. Watch Box → photograph a dial → enter the
-frozen watch time → measure seconds gained or lost per day. Local-first, with no
-account, backend, or automatic dial reading. See [product behavior](docs/PRODUCT.md)
+frozen watch time → measure seconds gained or lost per day. Local-first, with optional two-way iCloud Drive sync and no developer
+backend or automatic dial reading. See [product behavior](docs/PRODUCT.md)
 and [engineering notes](docs/ARCHITECTURE.md).
 
 ## Build on Pollux
@@ -21,6 +21,11 @@ open ios/Overcoil.xcodeproj
 `ios/project.yml` is the project source of truth. `make generate` regenerates the
 generated Xcode project. Current target: iOS 18+, iPhone portrait, version 0.1.0. Build numbers are in the
 project spec. Camera permission is requested only when opening capture.
+
+The iCloud implementation is described in [iCloud sync](docs/ICLOUD-WIP.md).
+It uses the device's own iCloud account, preserves a local offline copy, and detects
+conflicting edits. Finder access needs no Mac app. Physical verification is recorded
+separately from simulated/unit-test evidence.
 
 ## Apple configuration
 

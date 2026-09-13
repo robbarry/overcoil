@@ -16,7 +16,7 @@ struct WatchBoxView: View {
                         Label("A place for your watches", systemImage: "clock")
                     } description: {
                         Text("Photograph a dial. Read the frozen time. Discover how your watch runs in everyday life.")
-                    } actions: { PrimaryButton(title: "Add your first watch") { adding = true } }
+                    } actions: { PrimaryButton(title: "Add your first watch") { beginAdding() } }
                 } else {
                     LazyVGrid(columns: [GridItem(.adaptive(minimum: 150), spacing: 12)], spacing: 16) {
                         ForEach(store.database.watches) { watch in
@@ -33,8 +33,8 @@ struct WatchBoxView: View {
                 }
             }.padding(20)
         }.background(Theme.ivory).toolbar {
-            ToolbarItem(placement: .topBarTrailing) { Button("Add watch", systemImage: "plus") { adding = true }.labelStyle(.iconOnly).accessibilityIdentifier("addWatch") }
-        }.sheet(isPresented: $adding) { WatchForm { watch in
+            ToolbarItem(placement: .topBarTrailing) { Button("Add watch", systemImage: "plus") { beginAdding() }.labelStyle(.iconOnly).accessibilityIdentifier("addWatch") }
+        }.sheet(isPresented: $adding, onDismiss: { store.endEditing() }) { WatchForm { watch in
             adding = false
             // The detail opens immediately; cover choice is never a prerequisite.
             path = [watch.id]
@@ -42,6 +42,9 @@ struct WatchBoxView: View {
         .navigationDestination(isPresented: Binding(get: { !path.isEmpty }, set: { if !$0 { path = [] } })) {
             if let id = path.first { WatchDetailView(watchID: id) }
         }
+    }
+    private func beginAdding() {
+        guard !adding else { return }; store.beginEditing(); adding = true
     }
     @ViewBuilder private func status(_ watch: Watch) -> some View {
         let stats = WatchStatistics.calculate(database: store.database, watchID: watch.id)
@@ -120,7 +123,7 @@ struct WatchForm: View {
                         coverDraft = try PhotoDraft(bytes: bytes, source: .imported)
                     } catch is CancellationError {} catch { self.error = error.localizedDescription }
                 }
-        }.preferredColorScheme(.light)
+        }.preferredColorScheme(.light).modifier(CloudEditingGuard())
     }
     private func save() {
         guard canSave else { return }; saving = true
@@ -145,7 +148,7 @@ struct WatchDetailView: View {
                 VStack(alignment: .leading, spacing: 20) {
                     WatchCover(watch: watch).clipShape(RoundedRectangle(cornerRadius: 16))
                         .overlay(alignment: .bottomTrailing) {
-                            Button("Change reference photo", systemImage: "camera") { cover = true }
+                            Button("Change reference photo", systemImage: "camera") { beginCover() }
                                 .labelStyle(.iconOnly).font(.title2).padding(12).background(Theme.orange, in: Circle()).foregroundStyle(.white).padding(12)
                         }
                     VStack(alignment: .leading, spacing: 5) {
@@ -167,14 +170,14 @@ struct WatchDetailView: View {
                                 } else { RunSummary(run: run, readings: readings, compact: true) }
                             }.foregroundStyle(Theme.ink).contentShape(Rectangle())
                         }.buttonStyle(.plain).accessibilityIdentifier("currentRun")
-                        PrimaryButton(title: "Add reading") { capturing = true }
+                        PrimaryButton(title: "Add reading") { beginCapture() }
                         SecondaryButton(title: "End run") { ending = true }
                     } else {
                         if let latest = store.database.runs.filter({ $0.watchID == watchID }).sorted(by: { $0.createdAt > $1.createdAt }).first, latest.clockCompromised {
                             Label("The phone clock changed. Your readings were kept, but a new run is needed.", systemImage: "exclamationmark.triangle").font(.subheadline)
                             NavigationLink("Review saved readings") { RunDetailView(runID: latest.id) }
                         }
-                        PrimaryButton(title: "Start timing run") { capturing = true }
+                        PrimaryButton(title: "Start timing run") { beginCapture() }
                         Text("No need to set or synchronize your watch first.").font(.caption).foregroundStyle(.secondary)
                     }
                     Divider()
@@ -183,21 +186,25 @@ struct WatchDetailView: View {
                 }.padding(20)
             }.background(Theme.ivory).navigationTitle(watch.name).navigationBarTitleDisplayMode(.inline)
                 .toolbar { Menu {
-                    Button("Edit watch") { editing = true }
-                    Button("Change reference photo") { cover = true }
+                    Button("Edit watch") { beginEdit() }
+                    Button("Change reference photo") { beginCover() }
                     if store.database.activeRun(for: watchID) != nil { Button("Start a new run…") { ending = true } }
                 } label: { Image(systemName: "ellipsis").accessibilityLabel("Watch actions") } }
-                .sheet(isPresented: $editing) { WatchForm(watch: watch) }
-                .sheet(isPresented: $cover) { CoverChooser(watchID: watchID) }
-                .fullScreenCover(isPresented: $capturing) { CaptureFlow(watchID: watchID, runID: store.database.activeRun(for: watchID)?.id) }
+                .sheet(isPresented: $editing, onDismiss: { store.endEditing() }) { WatchForm(watch: watch) }
+                .sheet(isPresented: $cover, onDismiss: { store.endEditing() }) { CoverChooser(watchID: watchID) }
+                .fullScreenCover(isPresented: $capturing, onDismiss: { store.endEditing() }) { CaptureFlow(watchID: watchID, runID: store.database.activeRun(for: watchID)?.id) }
                 .confirmationDialog("End the current run? Earlier readings will be preserved.", isPresented: $ending, titleVisibility: .visible) {
                     if let run = store.database.activeRun(for: watchID) {
                         Button("End run — finished") { _ = store.perform { try $0.endRun(run.id, reason: "Finished") } }
-                        Button("Hands reset — start new run") { if store.perform({ try $0.endRun(run.id, reason: "Hands reset") }) { capturing = true } }
-                        Button("Watch stopped — start new run") { if store.perform({ try $0.endRun(run.id, reason: "Watch stopped") }) { capturing = true } }
+                        Button("Hands reset — start new run") { if store.perform({ try $0.endRun(run.id, reason: "Hands reset") }) { beginCapture() } }
+                        Button("Watch stopped — start new run") { if store.perform({ try $0.endRun(run.id, reason: "Watch stopped") }) { beginCapture() } }
                     }
                     Button("Cancel", role: .cancel) {}
                 }
         }
     }
+    private func beginCapture() { guard !capturing else { return }; store.beginEditing(); capturing = true }
+    private func beginEdit() { guard !editing else { return }; store.beginEditing(); editing = true }
+    private func beginCover() { guard !cover else { return }; store.beginEditing(); cover = true }
+
 }

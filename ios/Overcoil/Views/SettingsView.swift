@@ -1,8 +1,10 @@
 import SwiftUI
 
 struct SettingsView: View {
+    @Environment(AppStore.self) private var store
     var body: some View {
         List {
+            if let sync = store.cloudSync { ICloudSettingsSection(sync: sync) }
             Section {
                 Wordmark().padding(.vertical, 8)
                 Text("Your watch, your photo.").font(.system(.title2, design: .serif))
@@ -24,8 +26,8 @@ struct SettingsView: View {
                 Text("A rounded 0.0 seconds/day does not establish perfect accuracy.")
             }
             Section("Privacy & storage") {
-                Text("Your watches, photos, and readings stay in app-owned storage on this iPhone. Overcoil does not upload them, use an account, or request microphone, location, or full photo-library access. Your device's normal backup settings may include app data.")
-                Text("Photos imports are for reference photos only. Timing readings require in-app capture. Deleting the app can delete its local data.")
+                Text("Your watches, photos, and readings remain stored locally. When enabled, iCloud Drive sync also stores the shared library and original photos in your own iCloud account. Overcoil uses no developer backend, analytics, microphone, location, or full photo-library access.")
+                Text("Photos imports are for reference photos only. Timing readings require in-app capture. iCloud retains recovery versions and original photo files; deleting a reading removes it from the active library, not those backup files. Deleting the app can delete its local data. Use the same reference iPhone for all readings in a run; start a new run when changing phones.")
             }
             Section("Build") {
                 LabeledContent("Version", value: "\(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "") (\(Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? ""))")

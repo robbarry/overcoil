@@ -76,24 +76,25 @@ struct RunDetailView: View {
                         }.buttonStyle(.plain)
                     }
                     if run.isActive {
-                        PrimaryButton(title: "Add reading") { capturing = true }
+                        PrimaryButton(title: "Add reading") { beginCapture() }
                         SecondaryButton(title: "End run") { ending = true }
                     } else {
                         Text("New captures belong to a new run. You can still correct these saved readings.").font(.caption).foregroundStyle(.secondary)
                         if let active = store.database.activeRun(for: run.watchID) {
                             NavigationLink("Go to active run") { RunDetailView(runID: active.id) }
-                        } else { PrimaryButton(title: "Start a new run") { capturing = true } }
+                        } else { PrimaryButton(title: "Start a new run") { beginCapture() } }
                         NavigationLink("Go to watch") { WatchDetailView(watchID: run.watchID) }
                     }
                 }.padding(22)
             }.background(Theme.ivory).navigationTitle(store.database.watches.first { $0.id == run.watchID }?.name ?? "Timing run").navigationBarTitleDisplayMode(.inline)
-                .fullScreenCover(isPresented: $capturing) { CaptureFlow(watchID: run.watchID, runID: store.database.activeRun(for: run.watchID)?.id) }
+                .fullScreenCover(isPresented: $capturing, onDismiss: { store.endEditing() }) { CaptureFlow(watchID: run.watchID, runID: store.database.activeRun(for: run.watchID)?.id) }
                 .confirmationDialog("End run? The rate remains based on the first and latest photos.", isPresented: $ending, titleVisibility: .visible) {
                     ForEach(["Finished", "Hands reset", "Watch stopped"], id: \.self) { reason in Button(reason) { _ = store.perform { try $0.endRun(runID, reason: reason) } } }
                     Button("Cancel", role: .cancel) {}
                 }
         } else { ContentUnavailableView("Run removed", systemImage: "clock", description: Text("This run no longer has any readings. Your watch remains in Watch Box.")) }
     }
+    private func beginCapture() { guard !capturing else { return }; store.beginEditing(); capturing = true }
     private func elapsed(_ seconds: Double) -> String {
         if seconds < 60 { return String(format: "%.0f seconds", seconds) }
         if seconds < 3600 { return String(format: "%.1f minutes", seconds / 60) }
@@ -121,7 +122,7 @@ struct ReadingDetailView: View {
                     if let instant = reading.entered.instant { LabeledContent("Watch time", value: captureDescription(instant, offset: reading.entered.utcOffset)) }
                     LabeledContent("Watch time basis", value: zoneDescription(reading.entered.utcOffset))
                     if !reading.timingValid { Label("Timing invalid: detected clock discontinuity", systemImage: "exclamationmark.triangle") }
-                    PrimaryButton(title: "Correct entered time") { editing = true }
+                    PrimaryButton(title: "Correct entered time") { guard !editing else { return }; store.beginEditing(); editing = true }
                     Text("Corrections keep the original image and capture timestamp unchanged.").font(.caption).foregroundStyle(.secondary)
                     DisclosureGroup("Capture diagnostics") {
                         VStack(alignment: .leading, spacing: 8) {
@@ -139,7 +140,7 @@ struct ReadingDetailView: View {
                     Button("Delete reading…", role: .destructive) { deleting = true }.frame(maxWidth: .infinity)
                 }.padding(20)
             }.background(Theme.ivory).navigationTitle("Reading").navigationBarTitleDisplayMode(.inline)
-                .sheet(isPresented: $editing) {
+                .sheet(isPresented: $editing, onDismiss: { store.endEditing() }) {
                     if let image = store.image(reading.photoID) {
                         NavigationStack {
                             TimeEntryView(image: image, capture: reading.capture, initial: reading.entered, previousOffset: reading.offset, buttonTitle: "Save correction", prefillDescription: "Saved watch time. Corrections change only this reading, not the original photo or reference timestamp.") { entered in
