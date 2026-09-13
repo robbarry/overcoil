@@ -45,7 +45,15 @@ xcodebuild -project ios/Overcoil.xcodeproj -scheme Overcoil \
 
 UI tests drive native buttons and picker wheels, save actual synthetic image files,
 terminate/relaunch, and inspect rendered rates and history. Test attachments are
-local `.xcresult` artifacts. Synthetic evidence is distinct from device-camera proof.
+local `.xcresult` artifacts. Synthetic evidence is distinct from device-camera proof. Camera-denied UI testing
+injects a denied authorization result only in simulator DEBUG builds; it does not
+claim to exercise Apple's physical permission prompt. For the Photos import test,
+seed only the dedicated simulator library with the generated app icon:
+
+```sh
+xcrun simctl addmedia YOUR_OVERCOIL_SIMULATOR_UUID ios/Overcoil/Assets.xcassets/AppIcon.appiconset/AppIcon.png
+make ui-test SIMULATOR_ID=YOUR_OVERCOIL_SIMULATOR_UUID
+```
 
 ## Privacy and release boundaries
 

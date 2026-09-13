@@ -62,6 +62,7 @@ def request(config, path, body=None):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("command", choices=["status", "register", "simulator", "device", "archive"])
+    parser.add_argument("--derived-data", type=Path, default=ROOT / ".build/DerivedData")
     parser.add_argument("--env-file", type=Path, default=ROOT / "ios/.env")
     args = parser.parse_args()
     config = credentials(args.env_file) if args.command != "simulator" else None
@@ -87,8 +88,11 @@ def main():
         print(json.dumps({"apps": request(config, "/v1/apps?" + query)["data"]}, indent=2))
         return
     subprocess.run(["xcodegen", "generate", "--spec", str(ROOT / "ios/project.yml")], check=True)
+    revision = subprocess.check_output(["git", "rev-parse", "--short=12", "HEAD"], cwd=ROOT, text=True).strip()
+    if subprocess.check_output(["git", "status", "--porcelain"], cwd=ROOT, text=True).strip():
+        revision += "-dirty"
     command = ["xcodebuild", "-project", str(ROOT / "ios/Overcoil.xcodeproj"), "-scheme", "Overcoil",
-               "-derivedDataPath", str(ROOT / ".build/DerivedData")]
+               "-derivedDataPath", str(args.derived_data.resolve()), "INFOPLIST_KEY_OvercoilSourceRevision=" + revision]
     if args.command == "simulator":
         command += ["-destination", "generic/platform=iOS Simulator", "CODE_SIGNING_ALLOWED=NO", "build"]
     else:

@@ -48,6 +48,8 @@ struct CaptureMetadata: Codable, Equatable, Sendable {
     // uptime comparability across suspension, relaunch, or reboot.
     var continuityID: UUID
     var clockDiscontinuity: Bool
+    var pipeline: String? = nil
+    var torchEnabled: Bool? = nil
 }
 
 struct TimingRun: Identifiable, Codable, Equatable, Sendable {

@@ -62,6 +62,19 @@ final class CoreTests: XCTestCase {
         var bad = initial; bad.month = 2; bad.day = 30
         XCTAssertNil(bad.instant)
     }
+    func testContinuityTokenDoesNotCrossSuspensionOrProcessLifetime() {
+        let tracker = ClockContinuity()
+        let initial = ClockAnchor(hostSeconds: 100, wall: start, bracketSeconds: 0.001)
+        let (token, changed) = tracker.inspect(initial)
+        XCTAssertFalse(changed); XCTAssertTrue(tracker.isCurrent(token))
+        let (_, jumped) = tracker.inspect(ClockAnchor(hostSeconds: 110, wall: start.addingTimeInterval(15), bracketSeconds: 0.001))
+        XCTAssertTrue(jumped)
+        tracker.reset()
+        XCTAssertFalse(tracker.isCurrent(token))
+        let (newToken, afterReset) = tracker.inspect(ClockAnchor(hostSeconds: 1, wall: start.addingTimeInterval(10000), bracketSeconds: 0))
+        XCTAssertNotEqual(token, newToken); XCTAssertFalse(afterReset)
+        XCTAssertFalse(ClockContinuity().isCurrent(newToken))
+    }
     func testClockMappingSubsecondsAndDiscontinuity() {
         let a = ClockAnchor(hostSeconds: 100, wall: start, bracketSeconds: 0.0001)
         XCTAssertEqual(a.wallTime(for: 100.125).timeIntervalSince(start), 0.125)

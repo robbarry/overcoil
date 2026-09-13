@@ -1,7 +1,9 @@
 # Overcoil
 
-iPhone app bootstrap. The SwiftUI screen is a disposable signing/build smoke test,
-not the product implementation. Product walkthrough is still pending.
+Native iPhone watch timing journal. Watch Box → photograph a dial → enter the
+frozen watch time → measure seconds gained or lost per day. Local-first, with no
+account, backend, or automatic dial reading. See [product behavior](docs/PRODUCT.md)
+and [engineering notes](docs/ARCHITECTURE.md).
 
 ## Build on Pollux
 
@@ -17,8 +19,8 @@ open ios/Overcoil.xcodeproj
 ```
 
 `ios/project.yml` is the project source of truth. `make generate` regenerates the
-generated Xcode project. Placeholder defaults: iOS 18+, portrait, version 0.1.0,
-build 1. These are scaffolding choices, not settled product requirements.
+generated Xcode project. Current target: iOS 18+, iPhone portrait, version 0.1.0. Build numbers are in the
+project spec. Camera permission is requested only when opening capture.
 
 ## Apple configuration
 
@@ -56,10 +58,13 @@ record named Overcoil in App Store Connect before the first TestFlight upload
 [Apps API documentation](https://developer.apple.com/documentation/appstoreconnectapi/apps)
 directs new-app creation to the website.
 
-App icon, privacy/permission declarations, capabilities, release build-number
-allocation, distribution export, TestFlight groups, and device interaction proof
-remain future work. Do not claim a local development signature proves App Store
+App Store release build-number allocation, distribution export, and TestFlight
+groups remain future work; this project is currently for local device testing. Do not claim a local development signature proves App Store
 distribution or installation. No release scripts from Tank have been copied or run.
+
+Run `swift test` for core tests. Native UI tests are described in the engineering
+notes. **Physical capture alignment remains unvalidated**; the app makes no
+certified accuracy claim.
 
 Build artifacts and logs live under gitignored `.build/`. Keep credentials out of
 logs and shared transcripts. Rob authorized public source hosting at
