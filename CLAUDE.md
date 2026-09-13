@@ -151,3 +151,22 @@ implementation/receipt references. Main has the independently shipped UI/statist
 At the last live check the phone reported the current Watch Box/photos uploaded to iCloud Drive.
 The live isolated-restore receipt was still absent. Recheck rather than treating that negative as permanent.
 The user's real timings have a verified private backup. Preserve that boundary while finishing verification.
+
+## Identity maintenance
+
+Brand is the maker; Model is the watch designation; Nickname is an optional title
+replacement. At least one field suffices. Legacy names remain intact until explicitly
+edited; do not infer splits or normalize a user's collection with name-based heuristics.
+`Watch.displayName` derives UI titles, and `normalizeIdentity()` updates the legacy
+compatibility `name` on save. See `docs/ARCHITECTURE.md` for additive encoding semantics.
+
+For explicitly authorized bulk corrections in a development build, stage a private
+`identity-corrections.json` in the app's `Library/Application Support/Overcoil/` folder
+using devicectl copy-to. Never copy a replacement `store.json` into a running app.
+Launch a fresh process with `--apply-watch-identities` (DEBUG only): it applies the
+checked batch through Repository before iCloud starts, then follows normal sync.
+Inspect private `identity-corrections-result.json` and pull the resulting manifest.
+Compare all non-identity fields and all photo hashes against a fresh verified backup.
+The app retains the input for explicit idempotent retry and a pre-edit manifest in
+`IdentityRecovery/`; do not bundle those files or publish their contents. Never start
+this maintenance while a reading/editor draft is open. Confirm cloud upload separately.

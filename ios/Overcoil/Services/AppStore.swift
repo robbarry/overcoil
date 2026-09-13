@@ -52,6 +52,22 @@ struct PhotoDraft: Identifiable {
             #endif
             let root = try FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true).appendingPathComponent(directory, isDirectory: true)
             repository = try Repository(root: root)
+            #if DEBUG
+            if ProcessInfo.processInfo.arguments.contains("--apply-watch-identities") {
+                let input = root.appendingPathComponent("identity-corrections.json")
+                do {
+                    let request = try JSONDecoder().decode(WatchIdentityCorrections.self, from: Data(contentsOf: input))
+                    try repository!.correctWatchIdentities(request)
+                    let receipt = try JSONSerialization.data(withJSONObject: ["success": true, "count": request.corrections.count])
+                    try receipt.write(to: root.appendingPathComponent("identity-corrections-result.json"), options: .atomic)
+                    // Input retained privately for an idempotent retry if receipt transfer fails.
+                } catch {
+                    let receipt = try JSONSerialization.data(withJSONObject: ["success": false, "error": error.localizedDescription])
+                    try receipt.write(to: root.appendingPathComponent("identity-corrections-result.json"), options: .atomic)
+                    throw error
+                }
+            }
+            #endif
             startupError = nil; revision += 1
             #if targetEnvironment(simulator) && DEBUG
             if ProcessInfo.processInfo.arguments.contains("--ui-testing") { return }

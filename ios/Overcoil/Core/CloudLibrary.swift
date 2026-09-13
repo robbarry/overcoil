@@ -65,11 +65,11 @@ struct CloudLibrary: Codable, Sendable {
         let summaries = database.readings.sorted { $0.reference < $1.reference }.map { reading in
             let run = database.runs.first { $0.id == reading.runID }
             let watch = database.watches.first { $0.id == run?.watchID }
-            return CloudReadingSummary(id: reading.id, watch: watch?.name ?? "Watch", referenceUTC: reading.reference.ISO8601Format(.init(includingFractionalSeconds: true)), watchUTC: reading.entered.instant!.ISO8601Format(.init(includingFractionalSeconds: true)), offsetSeconds: reading.offset, photo: photos.first { $0.id == reading.photoID }!.originalPath)
+            return CloudReadingSummary(id: reading.id, watch: watch?.displayName ?? "Watch", referenceUTC: reading.reference.ISO8601Format(.init(includingFractionalSeconds: true)), watchUTC: reading.entered.instant!.ISO8601Format(.init(includingFractionalSeconds: true)), offsetSeconds: reading.offset, photo: photos.first { $0.id == reading.photoID }!.originalPath)
         }
         let watches = database.watches.map { watch in
             let stats = WatchStatistics.calculate(database: database, watchID: watch.id)
-            return CloudWatchSummary(id: watch.id, name: watch.name, rateSecondsPerDay: stats.rate,
+            return CloudWatchSummary(id: watch.id, name: watch.displayName, rateSecondsPerDay: stats.rate,
                                      measuredSeconds: stats.measuredSeconds, contributingReadings: stats.contributingReadingCount, contributingRuns: stats.contributingRunCount)
         }
         return Self(revision: try revision(of: database), parentRevision: parentRevision, publishedAt: Date(), database: database, photoFiles: photos, readingsForInspection: summaries, watchesForInspection: watches)

@@ -74,11 +74,11 @@ struct CoverChooser: View {
                 } catch is CancellationError {} catch { self.error = error.localizedDescription }
             }
         }.fullScreenCover(isPresented: $takingPhoto) {
-            CameraView(watchName: watch?.name ?? "Watch", coverOnly: true, onClose: { takingPhoto = false }, onPhoto: {
+            CameraView(watchName: watch?.displayName ?? "Watch", coverOnly: true, onClose: { takingPhoto = false }, onPhoto: {
                 candidate = CoverCandidate(image: $0.image, draft: $0); takingPhoto = false
             })
         }.sheet(item: $candidate) { candidate in
-            CropEditor(image: candidate.image, initialCrop: candidate.crop, watchName: watch?.name ?? "Watch") { crop in
+            CropEditor(image: candidate.image, initialCrop: candidate.crop, watchName: watch?.displayName ?? "Watch") { crop in
                 let success = store.perform { repo in
                     if let id = candidate.existingID { try repo.setCover(watchID: watchID, photoID: id, crop: crop) }
                     else if let draft = candidate.draft { try repo.importCover(draft.asset(watchID: watchID), bytes: draft.bytes, thumbnail: draft.thumbnail, crop: crop) }

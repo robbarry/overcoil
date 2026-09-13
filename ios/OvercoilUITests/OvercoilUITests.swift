@@ -34,6 +34,32 @@ import UIKit
         XCTAssertEqual(app.pickerWheels.count, 3)
         app.pickerWheels.element(boundBy: 2).adjust(toPickerWheelValue: seconds)
     }
+    func testBrandModelAndOptionalNickname() {
+        tap("addWatch")
+        XCTAssertFalse(app.buttons["saveWatch"].isEnabled)
+        XCTAssertFalse(app.textFields["Name (required)"].exists)
+        let brand = app.textFields["watchBrand"]
+        brand.tap(); brand.typeText("Test Maker")
+        XCTAssertTrue(app.buttons["saveWatch"].isEnabled)
+        let model = app.textFields["watchModel"]
+        model.tap(); model.typeText("Series One")
+        XCTAssertEqual(app.staticTexts["identityPreviewTitle"].label, "Test Maker")
+        screenshot("identity-brand-model-form")
+        tap("saveWatch")
+        XCTAssertTrue(app.staticTexts["Test Maker"].firstMatch.waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["Series One"].exists)
+        app.terminate(); app.launch()
+        XCTAssertTrue(app.staticTexts["Test Maker"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["Series One"].exists)
+        screenshot("identity-derived-watch-box")
+        tap("addWatch")
+        let nickname = app.textFields["watchName"]
+        nickname.tap(); nickname.typeText("My daily watch")
+        XCTAssertTrue(app.buttons["saveWatch"].isEnabled)
+        XCTAssertEqual(app.staticTexts["identityPreviewTitle"].label, "My daily watch")
+        tap("saveWatch")
+        XCTAssertTrue(app.buttons["Start timing run"].waitForExistence(timeout: 5))
+    }
     func testTwoReadingsCoverCorrectionAndRelaunch() {
         addWatch(); screenshot("01-watch-detail-no-cover")
         tap("Start timing run"); takePhoto(); screenshot("02-frozen-entry")

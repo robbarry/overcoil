@@ -16,7 +16,7 @@ struct RunsView: View {
                         if let watch = store.database.watches.first(where: { $0.id == run.watchID }) {
                             WatchCover(watch: watch).frame(width: 58, height: 58).clipShape(RoundedRectangle(cornerRadius: 9))
                             VStack(alignment: .leading, spacing: 5) {
-                                Text(watch.name).font(.headline)
+                                Text(watch.displayName).font(.headline)
                                 let readings = store.database.readings(in: run.id)
                                 if let rate = RunResult.calculate(readings, clockCompromised: run.clockCompromised).rate {
                                     Text("\(RunResult.displayRate(rate)) s/day · \(readings.count) readings").font(.subheadline.weight(.semibold)).monospacedDigit()
@@ -86,7 +86,7 @@ struct RunDetailView: View {
                         NavigationLink("Go to watch") { WatchDetailView(watchID: run.watchID) }
                     }
                 }.padding(22)
-            }.background(Theme.ivory).navigationTitle(store.database.watches.first { $0.id == run.watchID }?.name ?? "Timing run").navigationBarTitleDisplayMode(.inline)
+            }.background(Theme.ivory).navigationTitle(store.database.watches.first { $0.id == run.watchID }?.displayName ?? "Timing run").navigationBarTitleDisplayMode(.inline)
                 .fullScreenCover(isPresented: $capturing, onDismiss: { store.endEditing() }) { CaptureFlow(watchID: run.watchID, runID: store.database.activeRun(for: run.watchID)?.id) }
                 .confirmationDialog("End run? The rate remains based on the first and latest photos.", isPresented: $ending, titleVisibility: .visible) {
                     ForEach(["Finished", "Hands reset", "Watch stopped"], id: \.self) { reason in Button(reason) { _ = store.perform { try $0.endRun(runID, reason: reason) } } }

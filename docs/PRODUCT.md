@@ -9,7 +9,7 @@ Watch Box → choose watch → in-app photo → frozen hour/minute/second entry 
 No synchronization prerequisite, account, backend, network reference clock, or photo OCR.
 Native iPhone, SwiftUI, AVFoundation, app-owned local image files and atomic manifest.
 
-- A watch needs only a name. Identical names/models represent separate UUIDs.
+- A watch needs only a brand, model, or nickname. Brand is the maker; model is the watch designation; optional nickname overrides the derived title. Identical names/models represent separate UUIDs. Existing names remain intact until explicitly edited.
   Optional brand/model/notes and an optional deliberately chosen creation cover.
 - The first successful saved photo automatically becomes the cover only when no
   cover exists. Discarded drafts never count. Later readings never replace a cover.

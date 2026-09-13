@@ -73,7 +73,7 @@ struct WatchCover: View {
                     Text("Your watch, your photo").font(.caption)
                 }.foregroundStyle(.secondary)
             }
-        }.aspectRatio(1, contentMode: .fit).clipped().accessibilityLabel("Reference photo for \(watch.name)")
+        }.aspectRatio(1, contentMode: .fit).clipped().accessibilityLabel("Reference photo for \(watch.displayName)")
     }
 }
 

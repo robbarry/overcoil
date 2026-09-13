@@ -22,8 +22,8 @@ struct WatchBoxView: View {
                             NavigationLink { WatchDetailView(watchID: watch.id) } label: {
                                 VStack(alignment: .leading, spacing: 4) {
                                     WatchCover(watch: watch).clipShape(RoundedRectangle(cornerRadius: 10)).padding(.bottom, 6)
-                                    Text(watch.name).font(.headline).foregroundStyle(Theme.ink)
-                                    if !watch.model.isEmpty { Text(watch.model).font(.subheadline).foregroundStyle(.secondary) }
+                                    Text(watch.displayName).font(.headline).foregroundStyle(Theme.ink)
+                                    if !watch.model.isEmpty && watch.model != watch.displayName { Text(watch.model).font(.subheadline).foregroundStyle(.secondary) }
                                     timing(watch)
                                 }.frame(maxWidth: .infinity, alignment: .leading)
                             }.buttonStyle(.plain)
@@ -65,14 +65,14 @@ struct WatchBoxView: View {
 struct WatchForm: View {
     @Environment(AppStore.self) private var store
     @Environment(\.dismiss) private var dismiss
-    @State var watch = Watch(name: "")
+    @State var watch = Watch(name: "", nickname: "")
     @State private var photoSelection: PhotosPickerItem?
     @State private var coverDraft: PhotoDraft?
     @State private var loadingPhoto = false
     @State private var saving = false
     @State private var error: String?
     var onSave: (Watch) -> Void = { _ in }
-    private var canSave: Bool { !saving && !loadingPhoto && !watch.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+    private var canSave: Bool { !saving && !loadingPhoto && !watch.displayName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
@@ -86,13 +86,23 @@ struct WatchForm: View {
                     Spacer(minLength: 0)
                     Button("Save", action: save).font(.headline).frame(minWidth: 52, minHeight: 44)
                         .disabled(!canSave).accessibilityIdentifier("saveWatch")
-                        .accessibilityHint(watch.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "Enter a name to enable Save" : "Save this watch")
+                        .accessibilityHint(watch.displayName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "Enter a brand, model, or nickname to enable Save" : "Save this watch")
                 }.padding(.horizontal, 16).padding(.vertical, 8).background(Theme.ivory)
                 Form {
-                    Section("Watch") {
-                        TextField("Name (required)", text: $watch.name).accessibilityIdentifier("watchName")
-                        TextField("Brand (optional)", text: $watch.brand)
-                        TextField("Model (optional)", text: $watch.model)
+                    Section {
+                        identityField("Brand", prompt: "Watch maker", text: $watch.brand, identifier: "watchBrand")
+                        identityField("Model", prompt: "Model or reference", text: $watch.model, identifier: "watchModel")
+                        identityField("Nickname", prompt: "Optional", text: $watch.editableNickname, identifier: "watchName")
+                    } header: { Text("Watch") } footer: {
+                        Text("A nickname replaces the title in Watch Box.")
+                    }
+                    if !watch.displayName.isEmpty {
+                        Section("Watch Box preview") {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(watch.displayName).font(.headline).accessibilityIdentifier("identityPreviewTitle")
+                                if !watch.model.isEmpty && watch.model != watch.displayName { Text(watch.model).font(.subheadline).foregroundStyle(.secondary) }
+                            }
+                        }
                     }
                     Section("Reference photo (optional)") {
                         PhotosPicker(selection: $photoSelection, matching: .images) { Label("Choose from Photos", systemImage: "photo") }
@@ -120,9 +130,15 @@ struct WatchForm: View {
                 }
         }.preferredColorScheme(.light).modifier(CloudEditingGuard())
     }
+    private func identityField(_ title: String, prompt: String, text: Binding<String>, identifier: String) -> some View {
+        VStack(alignment: .leading, spacing: 5) {
+            Text(title).font(.caption).foregroundStyle(.secondary)
+            TextField(prompt, text: text).accessibilityLabel(title).accessibilityIdentifier(identifier)
+        }.padding(.vertical, 3)
+    }
     private func save() {
         guard canSave else { return }; saving = true
-        watch.name = watch.name.trimmingCharacters(in: .whitespacesAndNewlines)
+        watch.normalizeIdentity()
         if store.perform({ try $0.saveWatch(watch, cover: coverDraft?.asset(watchID: watch.id), bytes: coverDraft?.bytes, thumbnail: coverDraft?.thumbnail) }) { onSave(watch); dismiss() }
         else { saving = false; error = store.failure; store.failure = nil }
     }
@@ -147,8 +163,8 @@ struct WatchDetailView: View {
                                 .labelStyle(.iconOnly).font(.title2).padding(12).background(Theme.orange, in: Circle()).foregroundStyle(.white).padding(12)
                         }
                     VStack(alignment: .leading, spacing: 5) {
-                        Text(watch.name).font(.largeTitle.bold())
-                        if !watch.brand.isEmpty || !watch.model.isEmpty { Text([watch.brand, watch.model].filter { !$0.isEmpty }.joined(separator: " · ")).foregroundStyle(.secondary) }
+                        Text(watch.displayName).font(.largeTitle.bold())
+                        if !watch.displaySubtitle.isEmpty { Text(watch.displaySubtitle).foregroundStyle(.secondary) }
                     }
                     if watch.coverWasAutomatic && watch.coverID != nil {
                         Label("First photo set as reference. Change it whenever you like.", systemImage: "checkmark.circle.fill")
@@ -179,7 +195,7 @@ struct WatchDetailView: View {
                     NavigationLink { RunsView(watchID: watchID) } label: { Label("Run history", systemImage: "clock.arrow.circlepath") }
                     if !watch.notes.isEmpty { Text(watch.notes).font(.body).foregroundStyle(.secondary) }
                 }.padding(20)
-            }.background(Theme.ivory).navigationTitle(watch.name).navigationBarTitleDisplayMode(.inline)
+            }.background(Theme.ivory).navigationTitle(watch.displayName).navigationBarTitleDisplayMode(.inline)
                 .toolbar { Menu {
                     Button("Edit watch") { beginEdit() }
                     Button("Change reference photo") { beginCover() }
