@@ -28,11 +28,18 @@
   No persistent uptime comparisons. Detected discontinuities suppress the entire
   run's headline while keeping all observations. Undetected corrections remain a
   stated limitation, including changes outside a continuous foreground context.
+- `Core/TimeWheelMath.swift` and `Views/CyclicTimePicker.swift`: repeated native
+  UIKit picker rows re-center after selection, allowing independent looping fields.
+  Selection changes only that field; seconds do not carry into minutes. VoiceOver
+  component labels identify hour/minute/second; wheel fonts/row heights scale.
 - `Views/`: Watch Box, details, capture, frozen entry, runs/history/reading correction,
   reference-photo selection/crop and Settings. Camera dark appearance is scoped with
   an environment override, never a presentation-wide preferred-color-scheme change.
   Ivory time entry explicitly uses light appearance and dark ink. The simulator
-  camera uses the same appearance modifier, so camera→entry/retake tests catch leaks. Crops use normalized center and a
+  camera uses the same appearance modifier, so camera→entry/retake tests catch leaks.
+  Normal time entry is a fitted, non-scrolling vertical layout with an adaptive photo
+  height and a compact footer. AM/PM is outside the footer; date/zone and reading tips
+  open separate sheets. Accessibility sizes use a full-page scroll without an overlay. Crops use normalized center and a
   side fraction of the shorter orientation-corrected image edge.
 - `SimulatorFixture.swift`: `targetEnvironment(simulator) && DEBUG` only, gated by
   `--ui-testing`. Clearly labeled synthetic dial and fixed timestamps. It is not

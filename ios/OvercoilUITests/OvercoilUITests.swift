@@ -123,16 +123,44 @@ import UIKit
         addWatch(); tap("Start timing run"); takePhoto(); enterSeconds("08"); tap("Save reading")
         tap("Add reading"); takePhoto()
         XCTAssertEqual(app.pickerWheels.element(boundBy: 2).value as? String, "08")
-        XCTAssertTrue(app.staticTexts["Suggested from last offset"].exists)
+        XCTAssertFalse(app.staticTexts["Suggested from last offset"].exists)
         screenshot("16-prefill-from-last-offset")
         enterSeconds("14"); tap("Save reading")
         tap("Add reading"); takePhoto()
         XCTAssertEqual(app.pickerWheels.element(boundBy: 2).value as? String, "20")
-        XCTAssertTrue(app.staticTexts["Suggested from offset + drift"].exists)
+        XCTAssertFalse(app.staticTexts["Suggested from offset + drift"].exists)
         screenshot("17-prefill-from-measured-drift")
         tap("Cancel")
         XCTAssertTrue(app.staticTexts["rateValue"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.staticTexts["rateValue"].label.contains("+6.0"))
+    }
+    func testSecondsWrapIndependentlyAndPeriodIsUncovered() {
+        app.terminate(); app.launchArguments = ["--ui-testing", "--ui-rollover"]; app.launch()
+        addWatch(); tap("Start timing run"); takePhoto()
+        let hours = app.pickerWheels.element(boundBy: 0)
+        let minutes = app.pickerWheels.element(boundBy: 1)
+        let seconds = app.pickerWheels.element(boundBy: 2)
+        XCTAssertEqual(seconds.value as? String, "59")
+        XCTAssertEqual(minutes.value as? String, "00")
+        let originalHour = hours.value as? String
+        func stepSecond(_ direction: CGFloat) {
+            let height = seconds.frame.height
+            seconds.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5 + direction * 38 / height)).tap()
+        }
+        stepSecond(1); XCTAssertEqual(seconds.value as? String, "00")
+        stepSecond(1); XCTAssertEqual(seconds.value as? String, "01")
+        XCTAssertEqual(minutes.value as? String, "00"); XCTAssertEqual(hours.value as? String, originalHour)
+        stepSecond(-1); XCTAssertEqual(seconds.value as? String, "00")
+        stepSecond(-1); XCTAssertEqual(seconds.value as? String, "59")
+        XCTAssertEqual(minutes.value as? String, "00"); XCTAssertEqual(hours.value as? String, originalHour)
+        let period = app.segmentedControls["periodPicker"]
+        XCTAssertTrue(period.exists); XCTAssertTrue(period.buttons["AM"].isHittable); XCTAssertTrue(period.buttons["PM"].isHittable)
+        XCTAssertLessThan(period.frame.maxY, app.staticTexts["readingOffset"].frame.minY)
+        XCTAssertTrue(app.buttons["Save reading"].isHittable)
+        XCTAssertFalse(app.staticTexts["Suggested from offset + drift"].exists)
+        XCTAssertFalse(app.scrollViews["accessibleEntryScroll"].exists)
+        screenshot("18-independent-wrap-and-uncovered-period")
+        tap("Cancel")
     }
     func testPrimaryButtonHasContentInsets() {
         let title = "Add your first watch"

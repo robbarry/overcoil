@@ -162,7 +162,7 @@ struct CaptureFlow: View {
                     TimeEntryView(image: draft.image, capture: capture,
                                   initial: .at(prefill.instant, offset: run?.basisUTCOffset ?? capture.localUTCOffset),
                                   previousOffset: prefill.expectedOffset, saving: saving, buttonTitle: "Save reading",
-                                  prefillDescription: prefill.explanation, predictionLabel: prefill.shortLabel) { value in
+                                  prefillDescription: prefill.explanation) { value in
                         proposed = value
                         if runID != nil && abs((value.instant?.timeIntervalSince(capture.reference) ?? 0) - prefill.expectedOffset) > 120 { jumpWarning = true }
                         else { save(value) }

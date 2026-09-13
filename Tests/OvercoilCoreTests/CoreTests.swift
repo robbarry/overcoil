@@ -75,6 +75,24 @@ final class CoreTests: XCTestCase {
         XCTAssertNotEqual(token, newToken); XCTAssertFalse(afterReset)
         XCTAssertFalse(ClockContinuity().isCurrent(newToken))
     }
+    func testCyclicSecondsWrapWithoutChangingOtherFields() {
+        let original = WatchTime(year: 2026, month: 9, day: 13, hour: 12, minute: 0, second: 59, utcOffset: 0)
+        let one = TimeWheelMath.value(forRow: 961, period: 60)
+        XCTAssertEqual(one, 1)
+        let selected = TimeWheelMath.selecting(one, component: 2, in: original, twelveHour: true)
+        XCTAssertEqual(selected.hour, 12); XCTAssertEqual(selected.minute, 0); XCTAssertEqual(selected.second, 1)
+        XCTAssertEqual(TimeWheelMath.selecting(59, component: 2, in: selected, twelveHour: true), original)
+        XCTAssertEqual(TimeWheelMath.value(forRow: -1, period: 60), 59)
+    }
+    func testIndependentMinuteAndHourWheelsPreserveDateAndPeriod() {
+        let original = WatchTime(year: 2026, month: 12, day: 31, hour: 23, minute: 59, second: 59, utcOffset: -14400)
+        var expected = original; expected.minute = 0
+        XCTAssertEqual(TimeWheelMath.selecting(0, component: 1, in: original, twelveHour: true), expected)
+        expected = original; expected.hour = 12
+        XCTAssertEqual(TimeWheelMath.selecting(0, component: 0, in: original, twelveHour: true), expected)
+        expected = original; expected.hour = 0
+        XCTAssertEqual(TimeWheelMath.selecting(0, component: 0, in: original, twelveHour: false), expected)
+    }
     func testPrefillStartsWithPhoneThenUsesOffsetThenDrift() {
         let first = reading(start, offset: 8)
         let second = reading(start.addingTimeInterval(86400), offset: 14)

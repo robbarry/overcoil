@@ -76,3 +76,15 @@ Rob also revised subsequent-reading defaults to predicted watch time. Core tests
 cover first/one/two readings, real elapsed intervals, future/invalid observations,
 compromised clocks, and fixed-offset interpretation; native UI tests check +8-second
 and then +20-second suggestions in the +8 → +14 over 24 hours example.
+
+## Build 6 follow-up
+
+Time wheels now loop in both directions independently. Rob clarified that seconds
+must not carry into minutes. The wrap regression taps the actual adjacent rows to
+move 59 → 00 → 01 and back, asserting the hour/minute fields never change.
+
+The save panel no longer repeats “Suggested from offset + drift.” The offset and
+Save button use less vertical space; the normal page has no scrolling form beneath
+an overlay. Tests check that both AM/PM buttons are hittable and that their lower
+edge lies above the offset label, while Save is visible without scrolling. Prediction
+still works; its explanation is available under Reading tips.

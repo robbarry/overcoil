@@ -26,6 +26,9 @@ Native iPhone, SwiftUI, AVFoundation, app-owned local image files and atomic man
   measured offset + measured first-to-latest rate × time since the last reading.
   With only one prior reading, use its offset without drift. This is visibly labeled
   a suggestion that the user must confirm against the image, not a new measurement.
+  Details are available in Reading tips; the compact save panel has no prediction
+  caption, per Rob's follow-up. Hours/minutes/seconds wrap independently in both
+  directions, with no carry between fields.
   One-second entry; subseconds retained in the reference. Locale 12/24-hour
   presentation; date and UTC offset inspectable.
 - Date inference chooses the closest plausible day (and half-day in 12-hour mode)

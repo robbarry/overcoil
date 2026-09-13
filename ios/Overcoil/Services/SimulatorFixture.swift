@@ -7,8 +7,10 @@ import SwiftUI
     static var sequence = 0
     static func photo(coverOnly: Bool) throws -> PhotoDraft {
         let index = sequence; sequence += 1
-        let reference = Date(timeIntervalSince1970: 1_789_294_080 + Double(index) * 86400)
-        let seconds = index == 0 ? 8 : 14
+        let rollover = ProcessInfo.processInfo.arguments.contains("--ui-rollover")
+        let base = rollover ? 1_789_300_859.0 : 1_789_294_080.0
+        let reference = Date(timeIntervalSince1970: base + Double(index) * 86400)
+        let shown = WatchTime.at(reference.addingTimeInterval(rollover ? 2 : Double(8 + 6 * index)), offset: 0)
         let size = CGSize(width: 900, height: 900)
         let format = UIGraphicsImageRendererFormat(); format.scale = 1
         let image = UIGraphicsImageRenderer(size: size, format: format).image { context in
@@ -28,9 +30,9 @@ import SwiftUI
                 color.setStroke(); c.setLineWidth(width); c.setLineCap(.round)
                 c.move(to: CGPoint(x: 450, y: 450)); c.addLine(to: CGPoint(x: 450 + cos(angle) * length, y: 450 + sin(angle) * length)); c.strokePath()
             }
-            hand((10 + 8.0 / 60) / 12, length: 200, width: 18, color: .black)
-            hand(8.0 / 60, length: 290, width: 11, color: .black)
-            hand(Double(seconds) / 60, length: 310, width: 4, color: .systemOrange)
+            hand((Double(shown.hour % 12) + Double(shown.minute) / 60) / 12, length: 200, width: 18, color: .black)
+            hand(Double(shown.minute) / 60, length: 290, width: 11, color: .black)
+            hand(Double(shown.second) / 60, length: 310, width: 4, color: .systemOrange)
             ("SIMULATOR TEST" as NSString).draw(at: CGPoint(x: 288, y: 610), withAttributes: [.font: UIFont.systemFont(ofSize: 30), .foregroundColor: UIColor.darkGray])
         }
         let capture = CaptureMetadata(reference: reference, localUTCOffset: 0, rawValue: Int64(index * 86400), rawTimescale: 1, rawEpoch: 0, hostSeconds: Double(index) * 86400, anchorHostSeconds: Double(index) * 86400, anchorWall: reference, anchorBracketSeconds: 0, mappingResidualSeconds: 0, continuityID: UUID(), clockDiscontinuity: false)

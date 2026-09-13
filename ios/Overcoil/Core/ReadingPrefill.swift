@@ -23,14 +23,6 @@ struct ReadingPrefill: Equatable {
                     source: measuredRate == nil ? .lastOffset : .measuredRate, rate: measuredRate)
     }
 
-    var shortLabel: String? {
-        switch source {
-        case .phoneClock: nil
-        case .lastOffset: "Suggested from last offset"
-        case .measuredRate: "Suggested from offset + drift"
-        }
-    }
-
     var explanation: String {
         switch source {
         case .phoneClock:
