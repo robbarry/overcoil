@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-09-13T14:54:30.319315+00:00",
+  "generated_at_utc": "2026-09-13T14:56:45.886726+00:00",
   "candidate": {
     "bundle_id": "com.robbarry.overcoil",
     "version": "0.1.0",
@@ -42,12 +42,12 @@
   "last_verified_phone_install": {
     "bundle_id": "com.robbarry.overcoil",
     "version": "0.1.0",
-    "build": "3",
+    "build": "4",
     "launch_succeeded": true
   },
   "candidate_install_attempt": {
-    "outcome": "failed",
-    "reason": "Paired iPhone currently unavailable; awaiting reconnection."
+    "outcome": "success",
+    "reason": "Installed and launched after the paired iPhone reconnected."
   },
   "physical_capture_alignment_validated": false,
   "close_up_sharpness_verified_on_phone": false,
