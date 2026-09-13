@@ -38,7 +38,7 @@ for Finder access. This is NOT merely a one-way export.
 Core tests exercise two replicas (initial restore, second-device edit, return sync),
 subsecond preservation, missing/corrupt photos, divergent revisions, and refusal to
 replace a locally changed library. The main UI tests remain isolated from iCloud.
-The phone has now reported the current library and photos uploaded, with uploaded-state and checksum checks. The live isolated-restore check is still pending; a second physical device has not been exercised.
+The phone reported the current library and photos uploaded, with uploaded-state and checksum checks. Build 10's live isolated restore succeeded, with a revision matching the corrected local library and the original library unchanged. Two subsequent placeholder-watch additions also uploaded. A second physical device has not been exercised.
 
 ## Signing setup
 

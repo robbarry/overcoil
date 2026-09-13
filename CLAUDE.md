@@ -44,11 +44,10 @@ Rob is actively using this app. **Never uninstall, reset, seed fixtures into, or
 
 Installed on the phone: **build 10**, source `81f38968bc09`, including iCloud, the clean grid,
 and clearer Brand/Model/optional Nickname identity fields.
-The iCloud worktree/branch is still separate pending the live restore check. Root `main` has the
-UI/statistics/docs changes but not iCloud runtime; **do not accidentally downgrade the phone by
-building/installing main's older target**. Use `.build/icloud-worktree` for this installed feature set.
-Current library upload has been verified from the phone's iCloud status; live isolated restore and
-a second physical-device round trip remain unverified. Builds 7, 8 and 9 left the store byte-identical.
+Build 10 retains the same installed source; its checked identity corrections have now run.
+Live iCloud upload and isolated restore are verified. A second physical-device round trip
+remains unverified. Builds 7–10 preserved existing data on install; the subsequent authorized
+identity corrections and additions changed only the intended watch fields/records.
 
 ## Build/sign/install
 
@@ -130,9 +129,9 @@ when changing that metadata. Verify signed app/profile, not only the source enti
 Rob's Xcode sign-in enabled registration/association/profile provisioning; subsequent API-key builds
 worked. Keep changes Overcoil-only. No CloudKit schema or Mac app is required for the document approach.
 
-The iCloud feature is on `feature/icloud-drive-sync` (worktree `.build/icloud-worktree`) until live
-verification is complete. `docs/ICLOUD-WIP.md` and `docs/icloud-verification.json` on that branch are the
-implementation/receipt references. Main has the independently shipped UI/statistics work.
+The iCloud feature was verified on `feature/icloud-drive-sync` (worktree `.build/icloud-worktree`).
+`docs/ICLOUD-WIP.md` and `docs/icloud-verification.json` are the implementation/receipt references.
+Keep the installed source stamp distinct from later documentation-only commits.
 
 - Shared `Library.overcoil.json` contains full-precision records, readable inspection summaries and
   checksums. `Photos/`, `Thumbnails/`, `Recovery/` are browsable in Finder → iCloud Drive → Overcoil.
@@ -149,9 +148,10 @@ implementation/receipt references. Main has the independently shipped UI/statist
 - Private diagnostics: `cloud-status.json` and `sync-restore-check.json` in the app's local store folder.
   Copy them to private storage to inspect; never publish account archives, user data or raw device logs.
 
-At the last live check the phone reported the current Watch Box/photos uploaded to iCloud Drive.
-The live isolated-restore receipt was still absent. Recheck rather than treating that negative as permanent.
-The user's real timings have a verified private backup. Preserve that boundary while finishing verification.
+The phone reported the current Watch Box/photos uploaded to iCloud Drive. A successful live
+isolated-restore receipt matches the corrected library revision and confirms the real library
+was unchanged. The two later placeholder additions also uploaded. Private verified backups
+contain the before/after records and unchanged original/thumbnail hashes.
 
 ## Identity maintenance
 
@@ -173,18 +173,29 @@ The app retains the input for explicit idempotent retry and a pre-edit manifest 
 this maintenance while a reading/editor draft is open. Confirm cloud upload separately.
 
 
-### Build 10 identity correction handoff (2026-09-13)
+### Build 10 live data verification (2026-09-13)
 
-The in-place install succeeded, but maintenance launch failed with the phone **Locked**.
-The private seven-watch request is staged as `identity-corrections.json` in the app's
-local store folder. **Corrections are not yet applied.** Ask Rob to unlock and leave
-Home Screen, then launch a fresh process with `--apply-watch-identities --verify-icloud-restore`.
-Do not simply claim that opening the app normally applies this explicit debug operation.
-Source is on `feature/icloud-drive-sync`; no personal inventory is in the public commit.
-Main checkout `.build/identity-backup-path.txt` points to the fresh verified private
-backup/request. Check that pointer, read the receipt, compare all non-identity records
-and image checksums, and verify cloud upload before reporting corrected data.
+The phone unlocked and the checked seven-watch identity request succeeded. Exact manifest
+comparison verified all non-identity fields, photo records, runs and readings unchanged.
+The corrected library uploaded; the isolated restore succeeded at 22:40:38 UTC and its
+cloud revision equals the corrected local manifest hash. This is not a second-device test.
+Two more watch entries were then added through the actual phone's Add Watch form, with
+placeholder covers and no new runs/readings. Their upload was verified at 22:50:37 UTC.
+The existing records remained identical and all 22 original/thumbnail hashes matched the
+private backup. No real watch inventory, photos or raw receipts are in public source.
+
+Main checkout `.build/identity-backup-path.txt` points to private before/after data, the
+repair request/receipt, restore receipt, and the `after-additions/` verified snapshot.
+Do not rerun the old identity request after later user edits: it intentionally rejects stale
+identity preconditions. It is no longer pending.
+
 Core tests: 31 passed. Native identity creation tests passed on iPhone 17 Pro and SE3
 simulators; two-reading/correction/relaunch regression passed. Rendered labels and pinned
 Save inspected at both sizes. Synthetic native maintenance launch verified the checked
 transaction, recovery manifest, success receipt, and disabled fixture cloud traffic.
+
+Phone UI automation: iPhone Mirroring reconnected via Try Again and allowed actual
+coordinate taps even though its AX tree exposed only the outer window. Re-read screenshots
+after sheet animations. Bulk `type_text` reordered characters and clipboard paste timed out;
+one-character `type_text` calls with a fresh app-state read between characters worked.
+Always verify rendered text and the durable store before claiming successful edits.
