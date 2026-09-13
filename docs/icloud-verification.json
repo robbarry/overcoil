@@ -1,0 +1,29 @@
+{
+  "generated_at_utc": "2026-09-13T21:11:05.002825+00:00",
+  "app": {
+    "bundle_id": "com.robbarry.overcoil",
+    "version": "0.1.0",
+    "build": "8",
+    "source_revision": "d005a8379b61"
+  },
+  "core_tests": {
+    "passed": 27,
+    "failed": 0
+  },
+  "native_ui_regression": {
+    "result": "Passed",
+    "passedTests": 3,
+    "failedTests": 0,
+    "totalTestCount": 3
+  },
+  "signed_cloud_documents_container_verified": true,
+  "installed_build_verified": true,
+  "private_backup_verified": true,
+  "existing_library_byte_identical_after_install": true,
+  "phone_launch_succeeded": false,
+  "icloud_upload_verified": false,
+  "live_isolated_restore_verified": false,
+  "physical_second_device_sync_verified": false,
+  "physical_capture_alignment_verified": false,
+  "pending": "Foreground app launch and first iCloud upload/restore verification. No private library contents or device identifiers are included."
+}
