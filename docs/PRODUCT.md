@@ -84,3 +84,19 @@ Apple references:
 - [Photo quality prioritization](https://developer.apple.com/documentation/avfoundation/avcapturephotosettings/photoqualityprioritization)
 - [Native Photos picker](https://developer.apple.com/documentation/photokit/bringing-photos-picker-to-your-swiftui-app)
 - [Required reason API categories](https://developer.apple.com/documentation/bundleresources/app-privacy-configuration/nsprivacyaccessedapitypes/nsprivacyaccessedapitype)
+
+## Overall watch statistics (follow-up)
+
+Watch Box and watch detail lead with the watch's overall estimated seconds/day
+when any valid run has two readings. Combine each run's first-to-latest offset
+change and divide by the sum of those runs' actual measured seconds. This is a
+duration-weighted average—not an unweighted mean and never a comparison across
+reset offsets. Single-reading runs, zero spans and compromised clocks contribute
+no rate. Show the contributing reading/run counts, measured duration, and date.
+“Early estimate” indicates that no contributing run yet spans 24 hours; it is not
+a confidence percentage. All valid runs currently contribute; a future servicing
+boundary will start a new statistics epoch.
+
+Add/Edit Watch has a fixed header outside the scrolling form, keeping Save visible
+even with the keyboard or a chosen photo. Reference-photo cropping also offers a
+top Save action; both save locations share the same duplicate/save-failure guard.

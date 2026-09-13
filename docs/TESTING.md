@@ -88,3 +88,15 @@ Save button use less vertical space; the normal page has no scrolling form benea
 an overlay. Tests check that both AM/PM buttons are hittable and that their lower
 edge lies above the offset label, while Save is visible without scrolling. Prediction
 still works; its explanation is available under Reading tips.
+
+## Build 7 follow-up
+
+Tests cover duration-weighted all-run rates, reset offsets, singleton/compromised
+runs, other watches, corrections/deletions, and measurement end dates. Native UI
+checks scroll Add Watch with the keyboard present while asserting Save stays at
+the same top coordinate; checks top Save on a reference-photo crop; and records
++9.0 s/day on Watch Box after two equal-length runs at +6 and +12 s/day.
+
+A private, checksummed backup of the user's existing library was verified before
+this update. User photos/data are outside the public repository; no app uninstall
+or database reset is part of the update path.

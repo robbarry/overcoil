@@ -149,14 +149,18 @@ struct CropEditor: View {
                         Text(watchName).font(.headline); Spacer()
                     }.padding(10).background(.white.opacity(0.6), in: RoundedRectangle(cornerRadius: 12))
                     if failed { Text("The photo was not saved. Your crop is still here; try again.").foregroundStyle(Theme.orange) }
-                    PrimaryButton(title: saving ? "Saving…" : "Use as reference photo") {
-                        guard !saving else { return }; saving = true
-                        if onSave(crop) { dismiss() } else { saving = false; failed = true }
-                    }.disabled(saving)
+                    PrimaryButton(title: saving ? "Saving…" : "Use as reference photo", action: save).disabled(saving)
                 }.padding(20)
             }.background(Theme.ivory).navigationTitle("Reference photo").navigationBarTitleDisplayMode(.inline)
-                .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() }.disabled(saving) } }
-        }
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() }.disabled(saving) }
+                    ToolbarItem(placement: .confirmationAction) { Button("Save", action: save).disabled(saving).accessibilityIdentifier("saveReferencePhoto") }
+                }
+        }.preferredColorScheme(.light)
+    }
+    private func save() {
+        guard !saving else { return }; saving = true
+        if onSave(crop) { dismiss() } else { saving = false; failed = true }
     }
     private func normalize() {
         let rect = crop.rect(in: image.size)
