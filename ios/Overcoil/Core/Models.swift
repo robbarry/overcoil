@@ -50,6 +50,8 @@ struct CaptureMetadata: Codable, Equatable, Sendable {
     var clockDiscontinuity: Bool
     var pipeline: String? = nil
     var torchEnabled: Bool? = nil
+    var minimumFocusDistanceMM: Int? = nil
+    var videoZoomFactor: Double? = nil
 }
 
 struct TimingRun: Identifiable, Codable, Equatable, Sendable {
@@ -169,5 +171,13 @@ struct ClockAnchor: Equatable, Sendable {
     func wallTime(for host: Double) -> Date { wall.addingTimeInterval(host - hostSeconds) }
     func residual(to other: Self) -> Double {
         other.wall.timeIntervalSince(wall) - (other.hostSeconds - hostSeconds)
+    }
+}
+
+// Only prefer an ultra-wide sensor when it actually supports close autofocus.
+// Fixed-focus/unknown-distance cameras must not be advertised as macro capable.
+enum CaptureLensPolicy {
+    static func preferUltraWide(ultraFocusMM: Int, ultraHasAutofocus: Bool, wideFocusMM: Int) -> Bool {
+        ultraHasAutofocus && ultraFocusMM > 0 && ultraFocusMM <= 100 && (wideFocusMM <= 0 || ultraFocusMM < wideFocusMM)
     }
 }

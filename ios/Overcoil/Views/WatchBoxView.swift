@@ -143,7 +143,7 @@ struct WatchDetailView: View {
                             }.foregroundStyle(Theme.ink).contentShape(Rectangle())
                         }.buttonStyle(.plain).accessibilityIdentifier("currentRun")
                         PrimaryButton(title: "Add reading") { capturing = true }
-                        Button("End run") { ending = true }.frame(maxWidth: .infinity)
+                        SecondaryButton(title: "End run") { ending = true }
                     } else {
                         if let latest = store.database.runs.filter({ $0.watchID == watchID }).sorted(by: { $0.createdAt > $1.createdAt }).first, latest.clockCompromised {
                             Label("The phone clock changed. Your readings were kept, but a new run is needed.", systemImage: "exclamationmark.triangle").font(.subheadline)

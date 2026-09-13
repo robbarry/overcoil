@@ -1,4 +1,5 @@
 import XCTest
+import UIKit
 
 @MainActor final class OvercoilUITests: XCTestCase {
     var app: XCUIApplication!
@@ -88,6 +89,17 @@ import XCTest
         screenshot("10-camera-denied")
         tap("Close")
         XCTAssertTrue(app.buttons["Start timing run"].waitForExistence(timeout: 5))
+    }
+    func testPrimaryButtonHasContentInsets() {
+        let title = "Add your first watch"
+        let button = app.buttons[title]
+        XCTAssertTrue(button.waitForExistence(timeout: 8))
+        let textWidth = (title as NSString).size(withAttributes: [.font: UIFont.preferredFont(forTextStyle: .headline)]).width
+        XCTAssertGreaterThanOrEqual(button.frame.width, textWidth + 38)
+        XCTAssertGreaterThanOrEqual(button.frame.height, 52)
+        screenshot("13-primary-button-padding")
+        button.tap()
+        XCTAssertTrue(app.textFields["watchName"].waitForExistence(timeout: 5))
     }
     func testNativePhotosImport() {
         addWatch(); tap("Change reference photo"); tap("Choose from Photos")

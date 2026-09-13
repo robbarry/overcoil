@@ -75,6 +75,13 @@ final class CoreTests: XCTestCase {
         XCTAssertNotEqual(token, newToken); XCTAssertFalse(afterReset)
         XCTAssertFalse(ClockContinuity().isCurrent(newToken))
     }
+    func testCloseFocusLensSelectionRequiresRealAutofocus() {
+        XCTAssertTrue(CaptureLensPolicy.preferUltraWide(ultraFocusMM: 20, ultraHasAutofocus: true, wideFocusMM: 150))
+        XCTAssertFalse(CaptureLensPolicy.preferUltraWide(ultraFocusMM: 20, ultraHasAutofocus: false, wideFocusMM: 150))
+        XCTAssertFalse(CaptureLensPolicy.preferUltraWide(ultraFocusMM: -1, ultraHasAutofocus: true, wideFocusMM: 150))
+        XCTAssertFalse(CaptureLensPolicy.preferUltraWide(ultraFocusMM: 200, ultraHasAutofocus: true, wideFocusMM: 150))
+        XCTAssertTrue(CaptureLensPolicy.preferUltraWide(ultraFocusMM: 20, ultraHasAutofocus: true, wideFocusMM: -1))
+    }
     func testClockMappingSubsecondsAndDiscontinuity() {
         let a = ClockAnchor(hostSeconds: 100, wall: start, bracketSeconds: 0.0001)
         XCTAssertEqual(a.wallTime(for: 100.125).timeIntervalSince(start), 0.125)

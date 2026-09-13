@@ -10,8 +10,30 @@ struct PrimaryButton: View {
     var title: String
     var action: () -> Void
     var body: some View {
-        Button(action: action) { Text(title).font(.headline).frame(maxWidth: .infinity).padding(.vertical, 15) }
-            .buttonStyle(.plain).foregroundStyle(.white).background(Theme.orange, in: RoundedRectangle(cornerRadius: 13))
+        Button(action: action) {
+            Text(title).font(.headline).multilineTextAlignment(.center)
+                .padding(.horizontal, 20).padding(.vertical, 16)
+                .frame(maxWidth: .infinity, minHeight: 52).contentShape(Rectangle())
+        }.buttonStyle(PrimaryActionStyle())
+    }
+}
+
+private struct PrimaryActionStyle: ButtonStyle {
+    @Environment(\.isEnabled) private var isEnabled
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label.foregroundStyle(.white)
+            .background(Theme.orange.opacity(isEnabled ? (configuration.isPressed ? 0.8 : 1) : 0.45), in: RoundedRectangle(cornerRadius: 13))
+    }
+}
+
+struct SecondaryButton: View {
+    var title: String
+    var action: () -> Void
+    var body: some View {
+        Button(action: action) {
+            Text(title).multilineTextAlignment(.center).padding(.horizontal, 20).padding(.vertical, 12)
+                .frame(maxWidth: .infinity, minHeight: 44).contentShape(Rectangle())
+        }.buttonStyle(.plain).foregroundStyle(Theme.orange)
     }
 }
 

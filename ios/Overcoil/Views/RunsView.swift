@@ -71,7 +71,7 @@ struct RunDetailView: View {
                     }
                     if run.isActive {
                         PrimaryButton(title: "Add reading") { capturing = true }
-                        Button("End run") { ending = true }.frame(maxWidth: .infinity)
+                        SecondaryButton(title: "End run") { ending = true }
                     } else {
                         Text("New captures belong to a new run. You can still correct these saved readings.").font(.caption).foregroundStyle(.secondary)
                         if let active = store.database.activeRun(for: run.watchID) {
@@ -120,6 +120,8 @@ struct ReadingDetailView: View {
                     DisclosureGroup("Capture diagnostics") {
                         VStack(alignment: .leading, spacing: 8) {
                             if let pipeline = reading.capture.pipeline { Text("Pipeline: \(pipeline)") }
+                            if let distance = reading.capture.minimumFocusDistanceMM { Text("Lens minimum focus distance: \(distance) mm") }
+                            if let zoom = reading.capture.videoZoomFactor { Text("Lens zoom factor: \(zoom, specifier: "%.1f")") }
                             if let torch = reading.capture.torchEnabled { Text("Torch: \(torch ? "on" : "off")") }
                             Text("Raw capture: \(reading.capture.rawValue) / \(reading.capture.rawTimescale), epoch \(reading.capture.rawEpoch)")
                             Text("Host seconds: \(reading.capture.hostSeconds, specifier: "%.6f")")

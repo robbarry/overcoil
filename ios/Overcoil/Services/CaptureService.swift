@@ -15,6 +15,7 @@ final class CaptureService: NSObject, AVCapturePhotoCaptureDelegate, @unchecked 
     private let output = AVCapturePhotoOutput()
     private var device: AVCaptureDevice?
     private var configured = false
+    private var lensDescription = "Standard lens"
     private var busy = false
     private var requestID: Int64?
     private var anchor: ClockAnchor?
@@ -36,22 +37,31 @@ final class CaptureService: NSObject, AVCapturePhotoCaptureDelegate, @unchecked 
         return ClockAnchor(hostSeconds: (a + b) / 2, wall: wall, bracketSeconds: b - a)
     }
 
-    func start(completion: @escaping @MainActor @Sendable (String?, Bool) -> Void) {
+    func start(completion: @escaping @MainActor @Sendable (String?, Bool, String) -> Void) {
         queue.async { [self] in
             do {
                 if !configured {
                     session.beginConfiguration()
                     defer { session.commitConfiguration() }
                     session.sessionPreset = .photo
-                    guard let camera = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back) else {
+                    guard let wide = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back) else {
                         throw CaptureFailure(message: "A rear camera is not available on this device.")
                     }
+                    let ultra = AVCaptureDevice.default(.builtInUltraWideCamera, for: .video, position: .back)
+                    let closeUp = ultra.map {
+                        CaptureLensPolicy.preferUltraWide(ultraFocusMM: $0.minimumFocusDistance,
+                            ultraHasAutofocus: $0.isFocusModeSupported(.continuousAutoFocus), wideFocusMM: wide.minimumFocusDistance)
+                    } ?? false
+                    let camera = closeUp ? ultra! : wide
+                    lensDescription = closeUp ? "Close-up lens · tap the dial to focus" : "Standard lens · tap the dial to focus"
                     let input = try AVCaptureDeviceInput(device: camera)
                     guard session.canAddInput(input), session.canAddOutput(output) else {
                         throw CaptureFailure(message: "The camera could not be configured.")
                     }
                     session.addInput(input); session.addOutput(output)
                     try camera.lockForConfiguration()
+                    if closeUp { camera.videoZoomFactor = min(2, camera.maxAvailableVideoZoomFactor) }
+                    if camera.isFocusPointOfInterestSupported { camera.focusPointOfInterest = CGPoint(x: 0.5, y: 0.5) }
                     if camera.isFocusModeSupported(.continuousAutoFocus) { camera.focusMode = .continuousAutoFocus }
                     if camera.isExposureModeSupported(.continuousAutoExposure) { camera.exposureMode = .continuousAutoExposure }
                     if camera.isWhiteBalanceModeSupported(.continuousAutoWhiteBalance) { camera.whiteBalanceMode = .continuousAutoWhiteBalance }
@@ -65,7 +75,8 @@ final class CaptureService: NSObject, AVCapturePhotoCaptureDelegate, @unchecked 
                 if !session.isRunning { session.startRunning() }
                 let running = session.isRunning
                 let torch = device?.hasTorch == true
-                Task { @MainActor in completion(running ? nil : "The camera is unavailable. Close and try again.", torch) }
+                let description = lensDescription
+                Task { @MainActor in completion(running ? nil : "The camera is unavailable. Close and try again.", torch, description) }
             } catch {
                 if !configured {
                     session.beginConfiguration()
@@ -74,7 +85,7 @@ final class CaptureService: NSObject, AVCapturePhotoCaptureDelegate, @unchecked 
                     session.commitConfiguration()
                 }
                 let message = error.localizedDescription
-                Task { @MainActor in completion(message, false) }
+                Task { @MainActor in completion(message, false, "") }
             }
         }
     }
@@ -86,6 +97,23 @@ final class CaptureService: NSObject, AVCapturePhotoCaptureDelegate, @unchecked 
                 catch { /* Stopping the session must still proceed if torch configuration fails. */ }
             }
             if session.isRunning { session.stopRunning() }
+        }
+    }
+
+    func focus(at point: CGPoint, completion: @escaping @MainActor @Sendable (String?) -> Void) {
+        queue.async { [self] in
+            guard !busy, let device else { return }
+            do {
+                try device.lockForConfiguration(); defer { device.unlockForConfiguration() }
+                if device.isFocusPointOfInterestSupported { device.focusPointOfInterest = point }
+                if device.isFocusModeSupported(.continuousAutoFocus) { device.focusMode = .continuousAutoFocus }
+                if device.isExposurePointOfInterestSupported { device.exposurePointOfInterest = point }
+                if device.isExposureModeSupported(.continuousAutoExposure) { device.exposureMode = .continuousAutoExposure }
+                Task { @MainActor in completion(nil) }
+            } catch {
+                let message = error.localizedDescription
+                Task { @MainActor in completion(message) }
+            }
         }
     }
 
@@ -161,7 +189,8 @@ final class CaptureService: NSObject, AVCapturePhotoCaptureDelegate, @unchecked 
                 hostSeconds: seconds, anchorHostSeconds: pre.hostSeconds, anchorWall: pre.wall,
                 anchorBracketSeconds: pre.bracketSeconds, mappingResidualSeconds: residual,
                 continuityID: continuity, clockDiscontinuity: changed || abs(residual) > 0.5 || pre.bracketSeconds > 0.1,
-                pipeline: "rear-wide/jpeg/speed/flash-off/no-live-photo", torchEnabled: device?.torchMode == .on))
+                pipeline: "\(device?.deviceType.rawValue ?? "unknown")/jpeg/speed/flash-off/no-live-photo", torchEnabled: device?.torchMode == .on,
+                minimumFocusDistanceMM: device?.minimumFocusDistance, videoZoomFactor: device.map { Double($0.videoZoomFactor) }))
         }
     }
 

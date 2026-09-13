@@ -3,16 +3,30 @@ import AVFoundation
 
 struct CameraPreview: UIViewRepresentable {
     let session: AVCaptureSession
+    var onFocus: (CGPoint) -> Void
+    @MainActor final class Coordinator: NSObject {
+        var onFocus: (CGPoint) -> Void
+        init(onFocus: @escaping (CGPoint) -> Void) { self.onFocus = onFocus }
+        @objc func tapped(_ recognizer: UITapGestureRecognizer) {
+            guard let view = recognizer.view as? Preview else { return }
+            onFocus(view.videoLayer.captureDevicePointConverted(fromLayerPoint: recognizer.location(in: view)))
+        }
+    }
+    func makeCoordinator() -> Coordinator { Coordinator(onFocus: onFocus) }
     final class Preview: UIView {
         override class var layerClass: AnyClass { AVCaptureVideoPreviewLayer.self }
         var videoLayer: AVCaptureVideoPreviewLayer { layer as! AVCaptureVideoPreviewLayer }
     }
     func makeUIView(context: Context) -> Preview {
         let view = Preview(); view.videoLayer.session = session; view.videoLayer.videoGravity = .resizeAspectFill
+        view.addGestureRecognizer(UITapGestureRecognizer(target: context.coordinator, action: #selector(Coordinator.tapped(_:))))
         if let connection = view.videoLayer.connection, connection.isVideoRotationAngleSupported(90) { connection.videoRotationAngle = 90 }
         return view
     }
-    func updateUIView(_ uiView: Preview, context: Context) {}
+    func updateUIView(_ uiView: Preview, context: Context) {
+        context.coordinator.onFocus = onFocus
+        if let connection = uiView.videoLayer.connection, connection.isVideoRotationAngleSupported(90) { connection.videoRotationAngle = 90 }
+    }
 }
 
 struct CameraView: View {
@@ -24,6 +38,7 @@ struct CameraView: View {
     @State private var ready = false
     @State private var busy = false
     @State private var hasTorch = false
+    @State private var lensDescription = ""
     @State private var torch = false
     @State private var denied = false
     @State private var error: String?
@@ -40,15 +55,21 @@ struct CameraView: View {
     private var realBody: some View {
         VStack(spacing: 0) {
             HStack {
-                Button("Close", systemImage: "xmark", action: onClose).labelStyle(.iconOnly).disabled(busy)
+                Button("Close", systemImage: "xmark", action: onClose).labelStyle(.iconOnly).frame(width: 44, height: 44).contentShape(Rectangle()).disabled(busy)
                 Spacer()
                 VStack { Text(coverOnly ? "Reference photo" : "New reading").font(.headline); Text(watchName).font(.subheadline) }
                 Spacer(); Color.clear.frame(width: 22, height: 22)
             }.padding(20)
             ZStack {
-                CameraPreview(session: service.session)
+                CameraPreview(session: service.session) { point in
+                    service.focus(at: point) { message in if let message { error = message } }
+                }.allowsHitTesting(ready && !busy)
+                    .accessibilityLabel("Camera preview")
+                    .accessibilityAction(named: "Focus on the center of the dial") {
+                        service.focus(at: CGPoint(x: 0.5, y: 0.5)) { message in if let message { error = message } }
+                    }
                 RoundedRectangle(cornerRadius: 12).stroke(.white.opacity(0.7), style: StrokeStyle(lineWidth: 2, dash: [32, 100]))
-                    .padding(30).accessibilityHidden(true)
+                    .padding(30).accessibilityHidden(true).allowsHitTesting(false)
                 if let error {
                     VStack(spacing: 18) {
                         Image(systemName: "camera.fill").font(.largeTitle)
@@ -60,14 +81,15 @@ struct CameraView: View {
                     }.padding(24).background(.black.opacity(0.85), in: RoundedRectangle(cornerRadius: 18)).padding(20)
                 } else if !ready { ProgressView().tint(.white) }
             }.clipped()
-            VStack(spacing: 20) {
+            VStack(spacing: 16) {
+                if ready { Text(lensDescription).font(.caption).foregroundStyle(.white.opacity(0.85)) }
                 Text(coverOnly ? "This photo will not create a timing reading." : "Phone time is saved with your photo.").font(.subheadline).multilineTextAlignment(.center)
                 HStack {
                     if hasTorch {
                         Button(torch ? "Turn torch off" : "Turn torch on", systemImage: torch ? "flashlight.on.fill" : "flashlight.off.fill") {
                             let requested = !torch
                             service.torch(requested) { message in if let message { error = message } else { torch = requested } }
-                        }.labelStyle(.iconOnly).font(.title2).frame(width: 50)
+                        }.labelStyle(.iconOnly).font(.title2).frame(width: 50, height: 50).background(.white.opacity(0.1), in: Circle())
                     } else { Color.clear.frame(width: 50) }
                     Spacer()
                     Button {
@@ -114,7 +136,7 @@ struct CameraView: View {
         else { allowed = status == .authorized }
         guard visible else { return }
         guard allowed else { denied = true; error = "Camera access is off. Enable it in Settings to take readings."; return }
-        service.start { message, supportsTorch in error = message; ready = message == nil; hasTorch = supportsTorch }
+        service.start { message, supportsTorch, description in error = message; ready = message == nil; hasTorch = supportsTorch; lensDescription = description }
     }
 }
 

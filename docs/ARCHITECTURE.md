@@ -10,8 +10,10 @@
   datastore migrations. `beforeManifestWrite` enables failure injection in tests.
 - `Services/AppStore.swift`: main-actor observable adapter, bounded image cache,
   native image import/thumbnail/orientation normalization. Original bytes retained.
-- `Services/CaptureService.swift`: serial camera queue; rear physical wide-angle
-  camera, no audio input, JPEG/speed priority, flash off, no Live Photo. Native
+- `Services/CaptureService.swift`: serial camera queue; rear autofocus-capable ultra-wide camera when its reported minimum focus distance
+  is shorter (and at most 100 mm), otherwise the wide-angle camera; no audio input, JPEG/speed priority, flash off, no Live Photo. Close-up mode uses 2× digital zoom
+  on the ultra-wide sensor; tap-to-focus maps preview points into camera coordinates.
+  Lens type, zoom, and minimum focus distance are saved with capture diagnostics. Native
   `AVCapturePhoto.timestamp` converts from `session.synchronizationClock` to host
   time via `CMSyncConvertTime`. Bracketed wall/host anchor maps the exposure timestamp
   to a wall-clock reference; callback/save/tap times are not substituted. Metadata

@@ -66,7 +66,7 @@ iPad/Catalyst, App Store publication, and certified measurement accuracy.
 A compiled timestamp mapping is not an accuracy test. Before accuracy claims,
 compare saved images and mapped reference instants with a validated visible time
 reference on physical iPhones, under daylight, low light, moving seconds hands,
-and every enabled mode (rear wide-angle, JPEG speed priority, torch off/on). Record
+and every enabled mode (close-up ultra-wide when autofocus-capable, wide-angle fallback, JPEG speed priority, torch off/on). Record
 pipeline settings, raw timestamp/timebase, anchor bracket, residual, image, and
 observed alignment. Device install is not this validation. Settings says so.
 
