@@ -17,7 +17,13 @@ struct RunsView: View {
                             WatchCover(watch: watch).frame(width: 58, height: 58).clipShape(RoundedRectangle(cornerRadius: 9))
                             VStack(alignment: .leading, spacing: 5) {
                                 Text(watch.name).font(.headline)
-                                Text(run.isActive ? "Run in progress" : "Completed").font(.subheadline)
+                                let readings = store.database.readings(in: run.id)
+                                if let rate = RunResult.calculate(readings, clockCompromised: run.clockCompromised).rate {
+                                    Text("\(RunResult.displayRate(rate)) s/day · \(readings.count) readings").font(.subheadline.weight(.semibold)).monospacedDigit()
+                                } else if let last = readings.last, last.timingValid {
+                                    Text(RunResult.displayOffset(last.offset)).font(.subheadline)
+                                }
+                                Text(run.isActive ? "Active run" : "Completed").font(.caption).foregroundStyle(.secondary)
                                 if let first = store.database.readings(in: run.id).first {
                                     Text(first.reference.formatted(date: .abbreviated, time: .shortened)).font(.caption).foregroundStyle(.secondary)
                                 }

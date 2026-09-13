@@ -13,6 +13,7 @@
 		0DCD161EB94F521B89541D1A /* ReadingPrefill.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FA7AABE6A7CB8712E634D42 /* ReadingPrefill.swift */; };
 		5647EA0BCFF9FC69EEE6989D /* CoverChooser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80BD647E765E21B47E58F164 /* CoverChooser.swift */; };
 		611D0C200EBFAA562B84623E /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D5ED202DD3183805D94FF74 /* SettingsView.swift */; };
+		63F6CC025AC3094F55570804 /* WatchStatisticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D0D6251D3DC8947B816B911 /* WatchStatisticsView.swift */; };
 		65FE331A31BC920C289B820A /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 52C8068B89573FAE04C4F59B /* PrivacyInfo.xcprivacy */; };
 		6E88F42501FF692878365C60 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = F25109B7458B1302D75D9637 /* Theme.swift */; };
 		6F9A330F5A7D5059FCA75A97 /* SimulatorFixture.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD2708C527F6BC091F219851 /* SimulatorFixture.swift */; };
@@ -24,6 +25,7 @@
 		A07670C7E7BA2394D7B4BFED /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C0C372427E9D63D2799FFA48 /* Assets.xcassets */; };
 		A8809520675A32B383306474 /* CaptureService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72ECC694DF3DE8CA2C6C014A /* CaptureService.swift */; };
 		B0D92E00477C202CAD648743 /* WatchBoxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAFE9E19C8056395586DD499 /* WatchBoxView.swift */; };
+		B690154D466525F6F93CCB17 /* WatchStatistics.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D4B02657D869F53BD80A76 /* WatchStatistics.swift */; };
 		B77F1DA20C0FCF1801CC199E /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0D3BE01C1529D69F1DC8CF /* CameraView.swift */; };
 		E32AB392EDD11D637A5C80A6 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF2988997690DCF8411B3AD8 /* Models.swift */; };
 		EDBBA49DEE8F0766D450D310 /* Repository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 007CAE196BB32DC0573325D1 /* Repository.swift */; };
@@ -47,6 +49,7 @@
 		3AFD3CB7D13471E075B6D931 /* TimeEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeEntryView.swift; sourceTree = "<group>"; };
 		52C8068B89573FAE04C4F59B /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		606753787C93C385F556858B /* RunsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunsView.swift; sourceTree = "<group>"; };
+		6D0D6251D3DC8947B816B911 /* WatchStatisticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchStatisticsView.swift; sourceTree = "<group>"; };
 		71A93EFACFE43AE0026FDE0F /* OvercoilUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OvercoilUITests.swift; sourceTree = "<group>"; };
 		72ECC694DF3DE8CA2C6C014A /* CaptureService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureService.swift; sourceTree = "<group>"; };
 		79A5215FE2905F07DF081F2B /* AppStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStore.swift; sourceTree = "<group>"; };
@@ -60,6 +63,7 @@
 		C0C372427E9D63D2799FFA48 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		CF2988997690DCF8411B3AD8 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		DD2708C527F6BC091F219851 /* SimulatorFixture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimulatorFixture.swift; sourceTree = "<group>"; };
+		F1D4B02657D869F53BD80A76 /* WatchStatistics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchStatistics.swift; sourceTree = "<group>"; };
 		F25109B7458B1302D75D9637 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		FB57E4D5F546FC4F7E268DDA /* OvercoilUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = OvercoilUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -76,6 +80,7 @@
 				F25109B7458B1302D75D9637 /* Theme.swift */,
 				3AFD3CB7D13471E075B6D931 /* TimeEntryView.swift */,
 				BAFE9E19C8056395586DD499 /* WatchBoxView.swift */,
+				6D0D6251D3DC8947B816B911 /* WatchStatisticsView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -88,6 +93,7 @@
 				8FA7AABE6A7CB8712E634D42 /* ReadingPrefill.swift */,
 				007CAE196BB32DC0573325D1 /* Repository.swift */,
 				9533FC85C2EA580DFCDA035C /* TimeWheelMath.swift */,
+				F1D4B02657D869F53BD80A76 /* WatchStatistics.swift */,
 			);
 			path = Core;
 			sourceTree = "<group>";
@@ -262,6 +268,8 @@
 				0CAFC7FB2A79ED4B6A077FA1 /* TimeEntryView.swift in Sources */,
 				7A9E98184854EABAA8EDE131 /* TimeWheelMath.swift in Sources */,
 				B0D92E00477C202CAD648743 /* WatchBoxView.swift in Sources */,
+				B690154D466525F6F93CCB17 /* WatchStatistics.swift in Sources */,
+				63F6CC025AC3094F55570804 /* WatchStatisticsView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -328,7 +336,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 7;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 3XLD352MG9;
 				ENABLE_NS_ASSERTIONS = NO;
@@ -388,7 +396,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 7;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = 3XLD352MG9;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;

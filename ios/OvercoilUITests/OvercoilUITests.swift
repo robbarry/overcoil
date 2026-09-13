@@ -162,6 +162,42 @@ import UIKit
         screenshot("18-independent-wrap-and-uncovered-period")
         tap("Cancel")
     }
+    func testAddWatchSaveStaysPinnedWhileFormScrolls() {
+        tap("addWatch")
+        let name = app.textFields["watchName"]; name.tap(); name.typeText("Pinned Save test")
+        let save = app.buttons["saveWatch"]
+        XCTAssertTrue(save.isHittable)
+        let top = save.frame.minY
+        app.swipeUp(); app.swipeUp()
+        XCTAssertTrue(save.isHittable)
+        XCTAssertEqual(save.frame.minY, top, accuracy: 1)
+        XCTAssertLessThan(save.frame.maxY, app.frame.height / 3)
+        screenshot("19-add-watch-fixed-save")
+        save.tap()
+        XCTAssertTrue(app.buttons["Start timing run"].waitForExistence(timeout: 5))
+    }
+    func testPhotoCropHasTopSaveWithoutScrolling() {
+        addWatch(); tap("Change reference photo"); tap("Take a photo"); tap("Take simulator test photo")
+        let save = app.buttons["saveReferencePhoto"]
+        XCTAssertTrue(save.waitForExistence(timeout: 5)); XCTAssertTrue(save.isHittable)
+        XCTAssertLessThan(save.frame.maxY, app.frame.height / 3)
+        screenshot("20-photo-top-save")
+        save.tap()
+        XCTAssertTrue(app.buttons["Start timing run"].waitForExistence(timeout: 5))
+    }
+    func testWatchBoxLeadsWithOverallRateAcrossRuns() {
+        addWatch(); tap("Start timing run"); takePhoto(); enterSeconds("08"); tap("Save reading")
+        tap("Add reading"); takePhoto(); enterSeconds("14"); tap("Save reading")
+        tap("End run"); tap("End run — finished")
+        tap("Start timing run"); takePhoto(); enterSeconds("40"); tap("Save reading")
+        tap("Add reading"); takePhoto(); enterSeconds("52"); tap("Save reading")
+        XCTAssertTrue(app.staticTexts["rateValue"].label.contains("+9.0"))
+        app.terminate(); app.launch()
+        let headline = app.staticTexts["watchBoxOverallRate"]
+        XCTAssertTrue(headline.waitForExistence(timeout: 5)); XCTAssertTrue(headline.label.contains("+9.0"))
+        XCTAssertFalse(app.staticTexts["Run in progress"].exists)
+        screenshot("21-watch-box-pooled-rate")
+    }
     func testPrimaryButtonHasContentInsets() {
         let title = "Add your first watch"
         let button = app.buttons[title]

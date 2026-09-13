@@ -44,14 +44,24 @@ struct WatchBoxView: View {
         }
     }
     @ViewBuilder private func status(_ watch: Watch) -> some View {
-        if store.database.activeRun(for: watch.id) != nil {
-            Label("Run in progress", systemImage: "circle.fill").foregroundStyle(Theme.orange)
-        } else if let run = store.database.runs.filter({ $0.watchID == watch.id }).sorted(by: { $0.createdAt > $1.createdAt }).first,
-                  let last = store.database.readings(in: run.id).last,
-                  let rate = RunResult.calculate(store.database.readings(in: run.id), clockCompromised: run.clockCompromised).rate {
-            Text("Last \(RunResult.displayRate(rate)) s/day · \(last.reference.formatted(date: .abbreviated, time: .omitted))")
+        let stats = WatchStatistics.calculate(database: store.database, watchID: watch.id)
+        if let rate = stats.rate {
+            VStack(alignment: .leading, spacing: 3) {
+                HStack(spacing: 5) {
+                    Text("\(RunResult.displayRate(rate)) s/day").font(.subheadline.weight(.semibold)).monospacedDigit()
+                        .foregroundStyle(Theme.ink).accessibilityIdentifier("watchBoxOverallRate")
+                    if store.database.activeRun(for: watch.id) != nil { Image(systemName: "circle.fill").font(.system(size: 6)).foregroundStyle(Theme.orange).accessibilityLabel("Active run") }
+                }
+                Text("\(stats.contributingReadingCount) readings · \(stats.durationText)").font(.caption2)
+                if stats.early { Text("Early estimate").font(.caption2) }
+                if let date = stats.lastMeasurementDate { Text("As of \(date.formatted(date: .abbreviated, time: .omitted))").font(.caption2) }
+            }
+        } else if let reading = stats.latestReading, reading.timingValid {
+            Text(RunResult.displayOffset(reading.offset))
+            Text("\(stats.totalReadingCount) \(stats.totalReadingCount == 1 ? "reading" : "readings") · no rate yet").font(.caption2)
         } else { Label("Start a timing run", systemImage: "plus.circle") }
     }
+
 }
 
 struct WatchForm: View {
@@ -64,38 +74,42 @@ struct WatchForm: View {
     @State private var saving = false
     @State private var error: String?
     var onSave: (Watch) -> Void = { _ in }
+    private var canSave: Bool { !saving && !loadingPhoto && !watch.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
     var body: some View {
         NavigationStack {
-            Form {
-                Section("Watch") {
-                    TextField("Name (required)", text: $watch.name).accessibilityIdentifier("watchName")
-                    TextField("Brand (optional)", text: $watch.brand)
-                    TextField("Model (optional)", text: $watch.model)
-                }
-                Section("Reference photo (optional)") {
-                    PhotosPicker(selection: $photoSelection, matching: .images) { Label("Choose from Photos", systemImage: "photo") }
-                    if loadingPhoto { ProgressView("Loading photo…") }
-                    if let draft = coverDraft {
-                        Image(uiImage: draft.image).resizable().scaledToFit().frame(maxHeight: 160)
-                        Button("Remove selected photo") { coverDraft = nil; photoSelection = nil }
+            VStack(spacing: 0) {
+                // This header is outside the Form, so neither form scrolling nor
+                // a selected photo can move Save off screen.
+                HStack(spacing: 12) {
+                    Button("Cancel") { dismiss() }.frame(minWidth: 60, minHeight: 44).disabled(saving)
+                    Spacer(minLength: 0)
+                    Text(store.database.watches.contains(where: { $0.id == watch.id }) ? "Edit watch" : "Add watch")
+                        .font(.headline).lineLimit(1).minimumScaleFactor(0.7)
+                    Spacer(minLength: 0)
+                    Button("Save", action: save).font(.headline).frame(minWidth: 52, minHeight: 44)
+                        .disabled(!canSave).accessibilityIdentifier("saveWatch")
+                        .accessibilityHint(watch.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "Enter a name to enable Save" : "Save this watch")
+                }.padding(.horizontal, 16).padding(.vertical, 8).background(Theme.ivory)
+                Form {
+                    Section("Watch") {
+                        TextField("Name (required)", text: $watch.name).accessibilityIdentifier("watchName")
+                        TextField("Brand (optional)", text: $watch.brand)
+                        TextField("Model (optional)", text: $watch.model)
                     }
-                    Text("You can position and zoom the cover from the watch’s photo editor after saving.").font(.caption).foregroundStyle(.secondary)
-                }
-                if let error { Section { Text(error).foregroundStyle(Theme.orange) } }
-                Section("Notes") { TextField("Optional notes", text: $watch.notes, axis: .vertical).lineLimit(3...8) }
-                Section { Text(coverDraft == nil ? "You can take your first timing photo right away. Without a chosen cover, it becomes your Watch Box reference photo automatically." : "Your chosen cover will stay in place when you save timing readings.").font(.subheadline).foregroundStyle(.secondary) }
-            }.navigationTitle(store.database.watches.contains(where: { $0.id == watch.id }) ? "Edit watch" : "Add watch")
-                .toolbar {
-                    ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
-                    ToolbarItem(placement: .confirmationAction) {
-                        Button("Save") {
-                            guard !saving else { return }; saving = true
-                            watch.name = watch.name.trimmingCharacters(in: .whitespacesAndNewlines)
-                            if store.perform({ try $0.saveWatch(watch, cover: coverDraft?.asset(watchID: watch.id), bytes: coverDraft?.bytes, thumbnail: coverDraft?.thumbnail) }) { onSave(watch); dismiss() }
-                            else { saving = false; error = store.failure; store.failure = nil }
-                        }.disabled(saving || loadingPhoto || watch.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty).accessibilityIdentifier("saveWatch")
+                    Section("Reference photo (optional)") {
+                        PhotosPicker(selection: $photoSelection, matching: .images) { Label("Choose from Photos", systemImage: "photo") }
+                        if loadingPhoto { ProgressView("Loading photo…") }
+                        if let draft = coverDraft {
+                            Image(uiImage: draft.image).resizable().scaledToFit().frame(maxHeight: 160)
+                            Button("Remove selected photo") { coverDraft = nil; photoSelection = nil }
+                        }
+                        Text("You can position and zoom the cover from the watch’s photo editor after saving.").font(.caption).foregroundStyle(.secondary)
                     }
-                }
+                    if let error { Section { Text(error).foregroundStyle(Theme.orange) } }
+                    Section("Notes") { TextField("Optional notes", text: $watch.notes, axis: .vertical).lineLimit(3...8) }
+                    Section { Text(coverDraft == nil ? "You can take your first timing photo right away. Without a chosen cover, it becomes your Watch Box reference photo automatically." : "Your chosen cover will stay in place when you save timing readings.").font(.subheadline).foregroundStyle(.secondary) }
+                }.scrollContentBackground(.hidden).background(Theme.ivory)
+            }.toolbar(.hidden, for: .navigationBar)
                 .task(id: photoSelection) {
                     guard let item = photoSelection else { return }
                     loadingPhoto = true
@@ -106,7 +120,13 @@ struct WatchForm: View {
                         coverDraft = try PhotoDraft(bytes: bytes, source: .imported)
                     } catch is CancellationError {} catch { self.error = error.localizedDescription }
                 }
-        }
+        }.preferredColorScheme(.light)
+    }
+    private func save() {
+        guard canSave else { return }; saving = true
+        watch.name = watch.name.trimmingCharacters(in: .whitespacesAndNewlines)
+        if store.perform({ try $0.saveWatch(watch, cover: coverDraft?.asset(watchID: watch.id), bytes: coverDraft?.bytes, thumbnail: coverDraft?.thumbnail) }) { onSave(watch); dismiss() }
+        else { saving = false; error = store.failure; store.failure = nil }
     }
 }
 
@@ -120,6 +140,7 @@ struct WatchDetailView: View {
     private var watch: Watch? { store.database.watches.first { $0.id == watchID } }
     var body: some View {
         if let watch {
+            let stats = WatchStatistics.calculate(database: store.database, watchID: watchID)
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
                     WatchCover(watch: watch).clipShape(RoundedRectangle(cornerRadius: 16))
@@ -135,11 +156,15 @@ struct WatchDetailView: View {
                         Label("First photo set as reference. Change it whenever you like.", systemImage: "checkmark.circle.fill")
                             .font(.subheadline).padding(12).background(.green.opacity(0.08), in: RoundedRectangle(cornerRadius: 12))
                     }
+                    WatchStatisticsView(stats: stats)
                     if let run = store.database.activeRun(for: watchID) {
                         NavigationLink { RunDetailView(runID: run.id) } label: {
                             VStack(alignment: .leading, spacing: 12) {
                                 HStack { Text("Current run").font(.headline); Spacer(); Image(systemName: "chevron.right") }
-                                RunSummary(run: run, readings: store.database.readings(in: run.id), compact: true)
+                                let readings = store.database.readings(in: run.id)
+                                if stats.rate != nil, let rate = RunResult.calculate(readings, clockCompromised: run.clockCompromised).rate {
+                                    Text("This run: \(RunResult.displayRate(rate)) s/day · \(readings.count) readings").font(.subheadline).monospacedDigit()
+                                } else { RunSummary(run: run, readings: readings, compact: true) }
                             }.foregroundStyle(Theme.ink).contentShape(Rectangle())
                         }.buttonStyle(.plain).accessibilityIdentifier("currentRun")
                         PrimaryButton(title: "Add reading") { capturing = true }
