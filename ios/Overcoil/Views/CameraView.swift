@@ -113,7 +113,7 @@ struct CameraView: View {
                     Spacer(); Color.clear.frame(width: 50)
                 }
             }.padding(24)
-        }.modifier(CameraSurface())
+        }.modifier(CameraSurface()).modifier(CloudEditingGuard())
             .task { visible = true; await start() }
             .onDisappear { visible = false; service.stop() }
             .onReceive(NotificationCenter.default.publisher(for: UIApplication.didEnterBackgroundNotification)) { _ in
@@ -150,7 +150,7 @@ struct CaptureFlow: View {
     @State private var proposed: WatchTime?
     @State private var jumpWarning = false
     @State private var localError: String?
-    private var watchName: String { store.database.watches.first { $0.id == watchID }?.name ?? "Watch" }
+    private var watchName: String { store.database.watches.first { $0.id == watchID }?.displayName ?? "Watch" }
     var body: some View {
         Group {
             if let draft, let capture = draft.capture {

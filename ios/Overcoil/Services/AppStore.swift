@@ -39,6 +39,8 @@ struct PhotoDraft: Identifiable {
     private var revision = 0
     var failure: String?
     var startupError: String?
+    var cloudSync: ICloudDriveSync?
+    private var activeEditors = 0
     private let cache = NSCache<NSString, UIImage>()
     var database: Database { _ = revision; return repository?.database ?? Database() }
     init() { load() }
@@ -50,14 +52,48 @@ struct PhotoDraft: Identifiable {
             #endif
             let root = try FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true).appendingPathComponent(directory, isDirectory: true)
             repository = try Repository(root: root)
+            #if DEBUG
+            if ProcessInfo.processInfo.arguments.contains("--apply-watch-identities") {
+                let input = root.appendingPathComponent("identity-corrections.json")
+                do {
+                    let request = try JSONDecoder().decode(WatchIdentityCorrections.self, from: Data(contentsOf: input))
+                    try repository!.correctWatchIdentities(request)
+                    let receipt = try JSONSerialization.data(withJSONObject: ["success": true, "count": request.corrections.count])
+                    try receipt.write(to: root.appendingPathComponent("identity-corrections-result.json"), options: .atomic)
+                    // Input retained privately for an idempotent retry if receipt transfer fails.
+                } catch {
+                    let receipt = try JSONSerialization.data(withJSONObject: ["success": false, "error": error.localizedDescription])
+                    try receipt.write(to: root.appendingPathComponent("identity-corrections-result.json"), options: .atomic)
+                    throw error
+                }
+            }
+            #endif
             startupError = nil; revision += 1
+            #if targetEnvironment(simulator) && DEBUG
+            if ProcessInfo.processInfo.arguments.contains("--ui-testing") { return }
+            #endif
+            let sync = ICloudDriveSync(localRoot: root)
+            sync.canImport = { [weak self] in self?.activeEditors == 0 }
+            sync.applyDownload = { [weak self] document, staging, expected in
+                guard let self, let repository = self.repository else { throw StoreError.invalid("Local storage is unavailable.") }
+                try repository.replaceFromCloud(document, downloadedRoot: staging, expectedLocalRevision: expected)
+                self.cache.removeAllObjects(); self.revision += 1
+            }
+            cloudSync = sync
+            sync.update(repository!.database)
         } catch { startupError = error.localizedDescription }
     }
     @discardableResult func perform(_ body: (Repository) throws -> Void) -> Bool {
         guard let repository else { failure = "Storage is unavailable. Your data has not been changed."; return false }
-        do { try body(repository); cache.removeAllObjects(); revision += 1; return true }
+        do { try body(repository); cache.removeAllObjects(); revision += 1; cloudSync?.update(repository.database); return true }
         catch { failure = error.localizedDescription; return false }
     }
+    func beginEditing() { activeEditors += 1 }
+    func endEditing() {
+        activeEditors = max(0, activeEditors - 1)
+        if activeEditors == 0 { cloudSync?.update(database) }
+    }
+    func becameActive() { cloudSync?.update(database); cloudSync?.syncNow() }
     func image(_ id: UUID?, thumbnail: Bool = false) -> UIImage? {
         guard let id, let repository else { return nil }
         let key = "\(id)-\(thumbnail)" as NSString

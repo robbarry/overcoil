@@ -73,7 +73,7 @@ struct WatchCover: View {
                     Text("Your watch, your photo").font(.caption)
                 }.foregroundStyle(.secondary)
             }
-        }.aspectRatio(1, contentMode: .fit).clipped().accessibilityLabel("Reference photo for \(watch.name)")
+        }.aspectRatio(1, contentMode: .fit).clipped().accessibilityLabel("Reference photo for \(watch.displayName)")
     }
 }
 
@@ -128,5 +128,14 @@ struct CameraSurface: ViewModifier {
         // Keep dark styling local to the camera. preferredColorScheme propagates
         // to the entire presentation and can leak into the ivory reading screen.
         content.foregroundStyle(.white).background(.black).environment(\.colorScheme, .dark)
+    }
+}
+
+struct CloudEditingGuard: ViewModifier {
+    @Environment(AppStore.self) private var store
+    @State private var active = false
+    func body(content: Content) -> some View {
+        content.onAppear { if !active { active = true; store.beginEditing() } }
+            .onDisappear { if active { active = false; store.endEditing() } }
     }
 }

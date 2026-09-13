@@ -15,15 +15,15 @@ struct WatchBoxView: View {
                         Label("A place for your watches", systemImage: "clock")
                     } description: {
                         Text("Photograph a dial. Read the frozen time. Discover how your watch runs in everyday life.")
-                    } actions: { PrimaryButton(title: "Add your first watch") { adding = true } }
+                    } actions: { PrimaryButton(title: "Add your first watch") { beginAdding() } }
                 } else {
                     LazyVGrid(columns: [GridItem(.adaptive(minimum: 150), spacing: 12, alignment: .top)], spacing: 16) {
                         ForEach(store.database.watches) { watch in
                             NavigationLink { WatchDetailView(watchID: watch.id) } label: {
                                 VStack(alignment: .leading, spacing: 4) {
                                     WatchCover(watch: watch).clipShape(RoundedRectangle(cornerRadius: 10)).padding(.bottom, 6)
-                                    Text(watch.name).font(.headline).foregroundStyle(Theme.ink)
-                                    if !watch.model.isEmpty { Text(watch.model).font(.subheadline).foregroundStyle(.secondary) }
+                                    Text(watch.displayName).font(.headline).foregroundStyle(Theme.ink)
+                                    if !watch.model.isEmpty && watch.model != watch.displayName { Text(watch.model).font(.subheadline).foregroundStyle(.secondary) }
                                     timing(watch)
                                 }.frame(maxWidth: .infinity, alignment: .leading)
                             }.buttonStyle(.plain)
@@ -32,8 +32,8 @@ struct WatchBoxView: View {
                 }
             }.padding(20)
         }.background(Theme.ivory).toolbar {
-            ToolbarItem(placement: .topBarTrailing) { Button("Add watch", systemImage: "plus") { adding = true }.labelStyle(.iconOnly).accessibilityIdentifier("addWatch") }
-        }.sheet(isPresented: $adding) { WatchForm { watch in
+            ToolbarItem(placement: .topBarTrailing) { Button("Add watch", systemImage: "plus") { beginAdding() }.labelStyle(.iconOnly).accessibilityIdentifier("addWatch") }
+        }.sheet(isPresented: $adding, onDismiss: { store.endEditing() }) { WatchForm { watch in
             adding = false
             // The detail opens immediately; cover choice is never a prerequisite.
             path = [watch.id]
@@ -41,6 +41,9 @@ struct WatchBoxView: View {
         .navigationDestination(isPresented: Binding(get: { !path.isEmpty }, set: { if !$0 { path = [] } })) {
             if let id = path.first { WatchDetailView(watchID: id) }
         }
+    }
+    private func beginAdding() {
+        guard !adding else { return }; store.beginEditing(); adding = true
     }
     @ViewBuilder private func timing(_ watch: Watch) -> some View {
         let stats = WatchStatistics.calculate(database: store.database, watchID: watch.id)
@@ -62,14 +65,14 @@ struct WatchBoxView: View {
 struct WatchForm: View {
     @Environment(AppStore.self) private var store
     @Environment(\.dismiss) private var dismiss
-    @State var watch = Watch(name: "")
+    @State var watch = Watch(name: "", nickname: "")
     @State private var photoSelection: PhotosPickerItem?
     @State private var coverDraft: PhotoDraft?
     @State private var loadingPhoto = false
     @State private var saving = false
     @State private var error: String?
     var onSave: (Watch) -> Void = { _ in }
-    private var canSave: Bool { !saving && !loadingPhoto && !watch.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+    private var canSave: Bool { !saving && !loadingPhoto && !watch.displayName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
@@ -83,13 +86,23 @@ struct WatchForm: View {
                     Spacer(minLength: 0)
                     Button("Save", action: save).font(.headline).frame(minWidth: 52, minHeight: 44)
                         .disabled(!canSave).accessibilityIdentifier("saveWatch")
-                        .accessibilityHint(watch.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "Enter a name to enable Save" : "Save this watch")
+                        .accessibilityHint(watch.displayName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "Enter a brand, model, or nickname to enable Save" : "Save this watch")
                 }.padding(.horizontal, 16).padding(.vertical, 8).background(Theme.ivory)
                 Form {
-                    Section("Watch") {
-                        TextField("Name (required)", text: $watch.name).accessibilityIdentifier("watchName")
-                        TextField("Brand (optional)", text: $watch.brand)
-                        TextField("Model (optional)", text: $watch.model)
+                    Section {
+                        identityField("Brand", prompt: "Watch maker", text: $watch.brand, identifier: "watchBrand")
+                        identityField("Model", prompt: "Model or reference", text: $watch.model, identifier: "watchModel")
+                        identityField("Nickname", prompt: "Optional", text: $watch.editableNickname, identifier: "watchName")
+                    } header: { Text("Watch") } footer: {
+                        Text("A nickname replaces the title in Watch Box.")
+                    }
+                    if !watch.displayName.isEmpty {
+                        Section("Watch Box preview") {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(watch.displayName).font(.headline).accessibilityIdentifier("identityPreviewTitle")
+                                if !watch.model.isEmpty && watch.model != watch.displayName { Text(watch.model).font(.subheadline).foregroundStyle(.secondary) }
+                            }
+                        }
                     }
                     Section("Reference photo (optional)") {
                         PhotosPicker(selection: $photoSelection, matching: .images) { Label("Choose from Photos", systemImage: "photo") }
@@ -115,11 +128,17 @@ struct WatchForm: View {
                         coverDraft = try PhotoDraft(bytes: bytes, source: .imported)
                     } catch is CancellationError {} catch { self.error = error.localizedDescription }
                 }
-        }.preferredColorScheme(.light)
+        }.preferredColorScheme(.light).modifier(CloudEditingGuard())
+    }
+    private func identityField(_ title: String, prompt: String, text: Binding<String>, identifier: String) -> some View {
+        VStack(alignment: .leading, spacing: 5) {
+            Text(title).font(.caption).foregroundStyle(.secondary)
+            TextField(prompt, text: text).accessibilityLabel(title).accessibilityIdentifier(identifier)
+        }.padding(.vertical, 3)
     }
     private func save() {
         guard canSave else { return }; saving = true
-        watch.name = watch.name.trimmingCharacters(in: .whitespacesAndNewlines)
+        watch.normalizeIdentity()
         if store.perform({ try $0.saveWatch(watch, cover: coverDraft?.asset(watchID: watch.id), bytes: coverDraft?.bytes, thumbnail: coverDraft?.thumbnail) }) { onSave(watch); dismiss() }
         else { saving = false; error = store.failure; store.failure = nil }
     }
@@ -140,12 +159,12 @@ struct WatchDetailView: View {
                 VStack(alignment: .leading, spacing: 20) {
                     WatchCover(watch: watch).clipShape(RoundedRectangle(cornerRadius: 16))
                         .overlay(alignment: .bottomTrailing) {
-                            Button("Change reference photo", systemImage: "camera") { cover = true }
+                            Button("Change reference photo", systemImage: "camera") { beginCover() }
                                 .labelStyle(.iconOnly).font(.title2).padding(12).background(Theme.orange, in: Circle()).foregroundStyle(.white).padding(12)
                         }
                     VStack(alignment: .leading, spacing: 5) {
-                        Text(watch.name).font(.largeTitle.bold())
-                        if !watch.brand.isEmpty || !watch.model.isEmpty { Text([watch.brand, watch.model].filter { !$0.isEmpty }.joined(separator: " · ")).foregroundStyle(.secondary) }
+                        Text(watch.displayName).font(.largeTitle.bold())
+                        if !watch.displaySubtitle.isEmpty { Text(watch.displaySubtitle).foregroundStyle(.secondary) }
                     }
                     if watch.coverWasAutomatic && watch.coverID != nil {
                         Label("First photo set as reference. Change it whenever you like.", systemImage: "checkmark.circle.fill")
@@ -162,37 +181,41 @@ struct WatchDetailView: View {
                                 } else { RunSummary(run: run, readings: readings, compact: true) }
                             }.foregroundStyle(Theme.ink).contentShape(Rectangle())
                         }.buttonStyle(.plain).accessibilityIdentifier("currentRun")
-                        PrimaryButton(title: "Add reading") { capturing = true }
+                        PrimaryButton(title: "Add reading") { beginCapture() }
                         SecondaryButton(title: "End run") { ending = true }
                     } else {
                         if let latest = store.database.runs.filter({ $0.watchID == watchID }).sorted(by: { $0.createdAt > $1.createdAt }).first, latest.clockCompromised {
                             Label("The phone clock changed. Your readings were kept, but a new run is needed.", systemImage: "exclamationmark.triangle").font(.subheadline)
                             NavigationLink("Review saved readings") { RunDetailView(runID: latest.id) }
                         }
-                        PrimaryButton(title: "Start timing run") { capturing = true }
+                        PrimaryButton(title: "Start timing run") { beginCapture() }
                         Text("No need to set or synchronize your watch first.").font(.caption).foregroundStyle(.secondary)
                     }
                     Divider()
                     NavigationLink { RunsView(watchID: watchID) } label: { Label("Run history", systemImage: "clock.arrow.circlepath") }
                     if !watch.notes.isEmpty { Text(watch.notes).font(.body).foregroundStyle(.secondary) }
                 }.padding(20)
-            }.background(Theme.ivory).navigationTitle(watch.name).navigationBarTitleDisplayMode(.inline)
+            }.background(Theme.ivory).navigationTitle(watch.displayName).navigationBarTitleDisplayMode(.inline)
                 .toolbar { Menu {
-                    Button("Edit watch") { editing = true }
-                    Button("Change reference photo") { cover = true }
+                    Button("Edit watch") { beginEdit() }
+                    Button("Change reference photo") { beginCover() }
                     if store.database.activeRun(for: watchID) != nil { Button("Start a new run…") { ending = true } }
                 } label: { Image(systemName: "ellipsis").accessibilityLabel("Watch actions") } }
-                .sheet(isPresented: $editing) { WatchForm(watch: watch) }
-                .sheet(isPresented: $cover) { CoverChooser(watchID: watchID) }
-                .fullScreenCover(isPresented: $capturing) { CaptureFlow(watchID: watchID, runID: store.database.activeRun(for: watchID)?.id) }
+                .sheet(isPresented: $editing, onDismiss: { store.endEditing() }) { WatchForm(watch: watch) }
+                .sheet(isPresented: $cover, onDismiss: { store.endEditing() }) { CoverChooser(watchID: watchID) }
+                .fullScreenCover(isPresented: $capturing, onDismiss: { store.endEditing() }) { CaptureFlow(watchID: watchID, runID: store.database.activeRun(for: watchID)?.id) }
                 .confirmationDialog("End the current run? Earlier readings will be preserved.", isPresented: $ending, titleVisibility: .visible) {
                     if let run = store.database.activeRun(for: watchID) {
                         Button("End run — finished") { _ = store.perform { try $0.endRun(run.id, reason: "Finished") } }
-                        Button("Hands reset — start new run") { if store.perform({ try $0.endRun(run.id, reason: "Hands reset") }) { capturing = true } }
-                        Button("Watch stopped — start new run") { if store.perform({ try $0.endRun(run.id, reason: "Watch stopped") }) { capturing = true } }
+                        Button("Hands reset — start new run") { if store.perform({ try $0.endRun(run.id, reason: "Hands reset") }) { beginCapture() } }
+                        Button("Watch stopped — start new run") { if store.perform({ try $0.endRun(run.id, reason: "Watch stopped") }) { beginCapture() } }
                     }
                     Button("Cancel", role: .cancel) {}
                 }
         }
     }
+    private func beginCapture() { guard !capturing else { return }; store.beginEditing(); capturing = true }
+    private func beginEdit() { guard !editing else { return }; store.beginEditing(); editing = true }
+    private func beginCover() { guard !cover else { return }; store.beginEditing(); cover = true }
+
 }

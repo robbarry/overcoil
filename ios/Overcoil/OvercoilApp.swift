@@ -9,6 +9,7 @@ struct OvercoilApp: App {
             RootView().environment(store).tint(Theme.orange)
                 .onChange(of: scenePhase) { _, phase in
                     if phase != .active { ClockContinuity.shared.reset() }
+                    else { store.becameActive() }
                 }
         }
     }

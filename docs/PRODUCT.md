@@ -9,7 +9,7 @@ Watch Box → choose watch → in-app photo → frozen hour/minute/second entry 
 No synchronization prerequisite, account, backend, network reference clock, or photo OCR.
 Native iPhone, SwiftUI, AVFoundation, app-owned local image files and atomic manifest.
 
-- A watch needs only a name. Identical names/models represent separate UUIDs.
+- A watch needs only a brand, model, or nickname. Brand is the maker; model is the watch designation; optional nickname overrides the derived title. Identical names/models represent separate UUIDs. Existing names remain intact until explicitly edited.
   Optional brand/model/notes and an optional deliberately chosen creation cover.
 - The first successful saved photo automatically becomes the cover only when no
   cover exists. Discarded drafts never count. Later readings never replace a cover.
@@ -66,7 +66,7 @@ expressed in words, not only color. No mockup watches are preloaded.
 
 ## Explicit non-goals
 
-Cloud sync, accounts, OCR/automatic dial reading, social sharing, reminders, exports,
+Developer-hosted accounts, OCR/automatic dial reading, social sharing, reminders,
 iPad/Catalyst, App Store publication, and certified measurement accuracy.
 
 ## Physical measurement validation gate
@@ -100,6 +100,14 @@ boundary will start a new statistics epoch.
 Add/Edit Watch has a fixed header outside the scrolling form, keeping Save visible
 even with the keyboard or a chosen photo. Reference-photo cropping also offers a
 top Save action; both save locations share the same duplicate/save-failure guard.
+
+## iCloud follow-up
+
+Rob requested automatic backup AND two-way synchronization through a browsable
+iCloud Drive folder, including restoration on another Overcoil installation. The
+local store remains available offline; conflicts require an explicit choice, with
+recovery copies retained. No Mac app is required to browse the JSON and original
+photos. This supersedes the original local-only/no-cloud v1 default.
 
 ## Watch Box visual simplification
 

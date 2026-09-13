@@ -84,3 +84,27 @@ APIs or SDKs. The ordinary device backup policy still applies to Application Sup
 Never commit env files, keys, provisioning profiles, local device identifiers,
 real watch photos, user databases, or unreviewed diagnostics. Keep device receipts
 under `.build/`; publish only deliberately sanitized verification summaries.
+
+## Watch identity (build 10)
+
+The editable identity is **brand**, **model**, and **optional nickname**. A title is
+nickname → brand → model; at least one must be nonblank. Grid cards show that title
+and model without duplicating a model-only title. Brand and model are independent
+of the UUID identifying the physical watch; identical watches remain distinct.
+
+Additive persistence: `nickname == nil` marks a legacy record and preserves its
+old `name` verbatim, without guessing brand/model splits. Empty nickname explicitly
+selects the derived title. The schema-1 `name` remains a compatibility title written
+by `normalizeIdentity()` at save; UI and inspection summaries use `displayName`.
+Untouched legacy decoding/re-encoding preserves the canonical cloud revision. New
+nickname-bearing cloud snapshots require build 10+ on other installations: old
+builds cannot validate the extra fields in their canonical hash and must be upgraded,
+not used to overwrite the newer library. No capture or measurement schema changes.
+
+Developer identity correction uses a private `WatchIdentityCorrections` request,
+exact watch IDs and expected old identity fields. The repository validates the entire
+batch before one atomic commit and saves the exact prior manifest to local
+`IdentityRecovery/`. It can change only identity; notes, photo links, crops, runs,
+readings and timing evidence are preserved. Already-applied requests are idempotent;
+stale, duplicate, invalid or missing targets reject the whole batch. A write failure
+keeps the previous database and the backup. No user inventory is embedded in code.

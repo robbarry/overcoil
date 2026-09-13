@@ -62,7 +62,7 @@ final class Repository {
         try require(db.schemaVersion == 1, "Unsupported data version. Storage has not been changed.")
         try require(Set(db.watches.map(\.id)).count == db.watches.count && Set(db.photos.map(\.id)).count == db.photos.count && Set(db.runs.map(\.id)).count == db.runs.count && Set(db.readings.map(\.id)).count == db.readings.count, "Duplicate record identifiers.")
         for watch in db.watches {
-            try require(!watch.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty, "A watch needs a name.")
+            try require(!watch.displayName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty, "Enter a brand, model, or nickname.")
             try require(db.runs.filter { $0.watchID == watch.id && $0.isActive }.count <= 1, "Only one active run is allowed per watch.")
             if let id = watch.coverID { try require(db.photos.contains { $0.id == id && $0.watchID == watch.id }, "The reference photo is missing.") }
             try require(watch.crop.x.isFinite && watch.crop.y.isFinite && watch.crop.side.isFinite && watch.crop.x >= 0 && watch.crop.y >= 0 && watch.crop.side > 0 && watch.crop.side <= 1 && watch.crop.x <= 1 && watch.crop.y <= 1, "Invalid cover crop.")
@@ -90,6 +90,7 @@ final class Repository {
     }
 
     @discardableResult func saveWatch(_ watch: Watch, cover: PhotoAsset? = nil, bytes: Data? = nil, thumbnail: Data? = nil) throws -> UUID {
+        var watch = watch; watch.normalizeIdentity()
         var next = database
         if let i = next.watches.firstIndex(where: { $0.id == watch.id }) { next.watches[i] = watch }
         else { next.watches.append(watch) }
@@ -103,6 +104,38 @@ final class Repository {
         }
         try commit(next)
         return watch.id
+    }
+
+    // All-or-nothing identity repair through the ordinary manifest transaction.
+    // Runs before sync starts when explicitly requested by a developer launch.
+    func correctWatchIdentities(_ request: WatchIdentityCorrections) throws {
+        guard request.version == 1, !request.corrections.isEmpty,
+              Set(request.corrections.map(\.watchID)).count == request.corrections.count else {
+            throw StoreError.invalid("Invalid watch identity correction request.")
+        }
+        var next = database
+        for correction in request.corrections {
+            guard let index = next.watches.firstIndex(where: { $0.id == correction.watchID }) else {
+                throw StoreError.invalid("A watch to correct no longer exists. No changes were made.")
+            }
+            let current = next.watches[index]
+            var updated = current
+            updated.brand = correction.brand; updated.model = correction.model; updated.nickname = correction.nickname
+            updated.normalizeIdentity()
+            if WatchIdentityFields(current) == WatchIdentityFields(updated) { continue } // Safe retry.
+            guard WatchIdentityFields(current) == correction.expected else {
+                throw StoreError.invalid("A watch identity changed since review. No changes were made.")
+            }
+            next.watches[index] = updated
+        }
+        try Self.validate(next)
+        guard next != database else { return }
+        // Preserve the exact previous manifest before any mutation; never replace a backup.
+        let recovery = root.appendingPathComponent("IdentityRecovery", isDirectory: true)
+        try fm.createDirectory(at: recovery, withIntermediateDirectories: true)
+        try writeDurably(Data(contentsOf: root.appendingPathComponent("store.json")),
+                         to: recovery.appendingPathComponent("\(UUID().uuidString).json"))
+        try commit(next)
     }
 
     private func writePhoto(_ photo: PhotoAsset, bytes: Data, thumbnail: Data) throws {
@@ -207,4 +240,38 @@ final class Repository {
         }
         try commit(next)
     }
+    func replaceFromCloud(_ cloud: CloudLibrary, downloadedRoot: URL, expectedLocalRevision: String) throws {
+        guard try CloudLibrary.revision(of: database) == expectedLocalRevision else {
+            throw StoreError.invalid("This device changed while iCloud was downloading. Nothing was replaced; sync will check again.")
+        }
+        try cloud.validate()
+        try cloud.verifyPhotos(in: downloadedRoot)
+        // Preserve a recovery copy before replacing any committed local records.
+        let recovery = root.appendingPathComponent("SyncRecovery/\(expectedLocalRevision)")
+        try fm.createDirectory(at: recovery.appendingPathComponent("images"), withIntermediateDirectories: true)
+        if !fm.fileExists(atPath: recovery.appendingPathComponent("store.json").path) {
+            for photo in database.photos {
+                for (source, name) in [(imageURL(photo.id), photo.fileName), (thumbnailURL(photo.id), photo.thumbnailName)] {
+                    let target = recovery.appendingPathComponent("images/\(name)")
+                    if !fm.fileExists(atPath: target.path) {
+                        do { try fm.linkItem(at: source, to: target) }
+                        catch { try fm.copyItem(at: source, to: target) }
+                    }
+                }
+            }
+            try writeDurably(CloudLibrary.databaseData(database), to: recovery.appendingPathComponent("store.json"))
+        }
+        for photo in cloud.photoFiles {
+            for (cloudPath, target, expectedHash) in [(photo.originalPath, imageURL(photo.id), photo.originalSHA256), (photo.thumbnailPath, thumbnailURL(photo.id), photo.thumbnailSHA256)] {
+                let bytes = try Data(contentsOf: downloadedRoot.appendingPathComponent(cloudPath))
+                if fm.fileExists(atPath: target.path) {
+                    guard CloudLibrary.hash(try Data(contentsOf: target)) == expectedHash else {
+                        throw StoreError.invalid("A photo identifier has conflicting image data. Existing evidence has been preserved.")
+                    }
+                } else { try writeDurably(bytes, to: target) }
+            }
+        }
+        try commit(cloud.database)
+    }
+
 }

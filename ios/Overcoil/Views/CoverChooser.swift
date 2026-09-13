@@ -60,7 +60,7 @@ struct CoverChooser: View {
                 }.padding(20)
             }.background(Theme.ivory).navigationTitle("Reference photo").navigationBarTitleDisplayMode(.inline)
                 .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Cancel") { importTask?.cancel(); dismiss() } } }
-        }.onChange(of: selection) { _, item in
+        }.modifier(CloudEditingGuard()).onChange(of: selection) { _, item in
             importTask?.cancel()
             guard let item else { return }
             importing = true
@@ -74,11 +74,11 @@ struct CoverChooser: View {
                 } catch is CancellationError {} catch { self.error = error.localizedDescription }
             }
         }.fullScreenCover(isPresented: $takingPhoto) {
-            CameraView(watchName: watch?.name ?? "Watch", coverOnly: true, onClose: { takingPhoto = false }, onPhoto: {
+            CameraView(watchName: watch?.displayName ?? "Watch", coverOnly: true, onClose: { takingPhoto = false }, onPhoto: {
                 candidate = CoverCandidate(image: $0.image, draft: $0); takingPhoto = false
             })
         }.sheet(item: $candidate) { candidate in
-            CropEditor(image: candidate.image, initialCrop: candidate.crop, watchName: watch?.name ?? "Watch") { crop in
+            CropEditor(image: candidate.image, initialCrop: candidate.crop, watchName: watch?.displayName ?? "Watch") { crop in
                 let success = store.perform { repo in
                     if let id = candidate.existingID { try repo.setCover(watchID: watchID, photoID: id, crop: crop) }
                     else if let draft = candidate.draft { try repo.importCover(draft.asset(watchID: watchID), bytes: draft.bytes, thumbnail: draft.thumbnail, crop: crop) }
@@ -88,7 +88,7 @@ struct CoverChooser: View {
                 else { error = store.failure; store.failure = nil }
                 return success
             }
-        }.confirmationDialog("Delete this saved photo? If it is your cover, the earliest remaining photo will replace it, or a placeholder. Reading evidence must be deleted as a reading first.", isPresented: Binding(get: { deleteID != nil }, set: { if !$0 { deleteID = nil } }), titleVisibility: .visible) {
+        }.confirmationDialog("Delete this saved photo? If it is your cover, the earliest remaining photo will replace it, or a placeholder. Reading evidence must be deleted as a reading first. iCloud recovery copies may remain in Drive.", isPresented: Binding(get: { deleteID != nil }, set: { if !$0 { deleteID = nil } }), titleVisibility: .visible) {
             Button("Delete photo", role: .destructive) {
                 if let id = deleteID, !store.perform({ try $0.deletePhoto(id) }) { error = store.failure; store.failure = nil }
                 deleteID = nil
@@ -156,7 +156,7 @@ struct CropEditor: View {
                     ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() }.disabled(saving) }
                     ToolbarItem(placement: .confirmationAction) { Button("Save", action: save).disabled(saving).accessibilityIdentifier("saveReferencePhoto") }
                 }
-        }.preferredColorScheme(.light)
+        }.preferredColorScheme(.light).modifier(CloudEditingGuard())
     }
     private func save() {
         guard !saving else { return }; saving = true

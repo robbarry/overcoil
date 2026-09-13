@@ -74,11 +74,12 @@ struct TimeEntryView: View {
                     saveSection.padding(.horizontal, 16).padding(.vertical, 8)
                 }.frame(width: geometry.size.width, height: geometry.size.height)
             }
-        }.background(Theme.ivory).foregroundStyle(Theme.ink)
+        }.modifier(CloudEditingGuard()).background(Theme.ivory).foregroundStyle(Theme.ink)
             .environment(\.colorScheme, .light).preferredColorScheme(.light)
             .fullScreenCover(isPresented: $expanded) {
                 NavigationStack {
                     ZoomPhoto(image: image).background(.black).toolbar { Button("Done") { expanded = false } }
+                        .modifier(CloudEditingGuard())
                 }
             }
             .sheet(isPresented: $advanced) { dateAndZoneSheet }

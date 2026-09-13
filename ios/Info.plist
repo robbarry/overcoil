@@ -1,5 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0"><dict>
-<key>OvercoilSourceRevision</key><string>$(OVERCOIL_SOURCE_REVISION)</string>
-</dict></plist>
+<plist version="1.0">
+<dict>
+	<key>OvercoilSourceRevision</key>
+	<string>$(OVERCOIL_SOURCE_REVISION)</string>
+	<key>NSUbiquitousContainers</key>
+	<dict>
+		<key>iCloud.com.robbarry.overcoil</key>
+		<dict>
+			<key>NSUbiquitousContainerIsDocumentScopePublic</key>
+			<true/>
+			<key>NSUbiquitousContainerName</key>
+			<string>Overcoil</string>
+			<key>NSUbiquitousContainerSupportedFolderLevels</key>
+			<string>Any</string>
+		</dict>
+	</dict>
+</dict>
+</plist>

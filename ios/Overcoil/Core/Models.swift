@@ -9,6 +9,8 @@ struct CoverCrop: Codable, Equatable, Sendable {
 
 struct Watch: Identifiable, Codable, Equatable, Sendable {
     var id = UUID()
+    // Compatibility title for schema-1 clients. New identities use nickname/brand/model.
+    // nil nickname means a legacy record: preserve its original name without guessing.
     var name: String
     var brand = ""
     var model = ""
@@ -17,6 +19,30 @@ struct Watch: Identifiable, Codable, Equatable, Sendable {
     var coverID: UUID?
     var crop = CoverCrop()
     var coverWasAutomatic = false
+    var nickname: String? = nil
+
+    var displayName: String {
+        guard let nickname else { return name }
+        let label = nickname.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !label.isEmpty { return label }
+        let maker = brand.trimmingCharacters(in: .whitespacesAndNewlines)
+        return maker.isEmpty ? model.trimmingCharacters(in: .whitespacesAndNewlines) : maker
+    }
+    var displaySubtitle: String {
+        [brand, model].map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty && $0.localizedCaseInsensitiveCompare(displayName) != .orderedSame }
+            .joined(separator: " · ")
+    }
+    var editableNickname: String {
+        get { nickname ?? name }
+        set { nickname = newValue }
+    }
+    mutating func normalizeIdentity() {
+        brand = brand.trimmingCharacters(in: .whitespacesAndNewlines)
+        model = model.trimmingCharacters(in: .whitespacesAndNewlines)
+        nickname = nickname?.trimmingCharacters(in: .whitespacesAndNewlines)
+        name = displayName.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
 }
 
 enum PhotoSource: String, Codable, Sendable { case timing, cameraCover, imported }

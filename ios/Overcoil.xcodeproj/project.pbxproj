@@ -11,13 +11,17 @@
 		0B8B52D8A0B9948DB81657C9 /* AppStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79A5215FE2905F07DF081F2B /* AppStore.swift */; };
 		0CAFC7FB2A79ED4B6A077FA1 /* TimeEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AFD3CB7D13471E075B6D931 /* TimeEntryView.swift */; };
 		0DCD161EB94F521B89541D1A /* ReadingPrefill.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FA7AABE6A7CB8712E634D42 /* ReadingPrefill.swift */; };
+		113BD8B0A90280EFAC043367 /* ICloudDriveSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4ED461BF7035810BEBC552FE /* ICloudDriveSync.swift */; };
+		3A874F00BA6A7891342FECD3 /* WatchIdentityCorrection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74FBD77F9284E0F353C46892 /* WatchIdentityCorrection.swift */; };
 		5647EA0BCFF9FC69EEE6989D /* CoverChooser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80BD647E765E21B47E58F164 /* CoverChooser.swift */; };
 		611D0C200EBFAA562B84623E /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D5ED202DD3183805D94FF74 /* SettingsView.swift */; };
+		62BBACAF2163BD70FE3B8F89 /* CloudLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 886931D719A30626DA2C3BA9 /* CloudLibrary.swift */; };
 		63F6CC025AC3094F55570804 /* WatchStatisticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D0D6251D3DC8947B816B911 /* WatchStatisticsView.swift */; };
 		65FE331A31BC920C289B820A /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 52C8068B89573FAE04C4F59B /* PrivacyInfo.xcprivacy */; };
 		6E88F42501FF692878365C60 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = F25109B7458B1302D75D9637 /* Theme.swift */; };
 		6F9A330F5A7D5059FCA75A97 /* SimulatorFixture.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD2708C527F6BC091F219851 /* SimulatorFixture.swift */; };
 		7A9E98184854EABAA8EDE131 /* TimeWheelMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9533FC85C2EA580DFCDA035C /* TimeWheelMath.swift */; };
+		85207836E0EEBDF3420DCC75 /* ICloudSettingsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0BAB5DFE9D6D1C237F31F3F /* ICloudSettingsSection.swift */; };
 		8580387DF3709EF3A74BF54E /* CyclicTimePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303707E815D4CD726CC19AF3 /* CyclicTimePicker.swift */; };
 		9355DF8E1651D1C3C513142E /* RunsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 606753787C93C385F556858B /* RunsView.swift */; };
 		9919255AA836B07B13F15021 /* OvercoilApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 852D20F1EDC4EEF77BBC258F /* OvercoilApp.swift */; };
@@ -47,17 +51,22 @@
 		303707E815D4CD726CC19AF3 /* CyclicTimePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CyclicTimePicker.swift; sourceTree = "<group>"; };
 		30F854A01140B5E796798D08 /* Overcoil.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Overcoil.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3AFD3CB7D13471E075B6D931 /* TimeEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeEntryView.swift; sourceTree = "<group>"; };
+		4ED461BF7035810BEBC552FE /* ICloudDriveSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ICloudDriveSync.swift; sourceTree = "<group>"; };
 		52C8068B89573FAE04C4F59B /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		530CAB3E59A96763A7F37AB5 /* Overcoil.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Overcoil.entitlements; sourceTree = "<group>"; };
 		606753787C93C385F556858B /* RunsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunsView.swift; sourceTree = "<group>"; };
 		6D0D6251D3DC8947B816B911 /* WatchStatisticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchStatisticsView.swift; sourceTree = "<group>"; };
 		71A93EFACFE43AE0026FDE0F /* OvercoilUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OvercoilUITests.swift; sourceTree = "<group>"; };
 		72ECC694DF3DE8CA2C6C014A /* CaptureService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureService.swift; sourceTree = "<group>"; };
+		74FBD77F9284E0F353C46892 /* WatchIdentityCorrection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchIdentityCorrection.swift; sourceTree = "<group>"; };
 		79A5215FE2905F07DF081F2B /* AppStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStore.swift; sourceTree = "<group>"; };
 		80BD647E765E21B47E58F164 /* CoverChooser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoverChooser.swift; sourceTree = "<group>"; };
 		852D20F1EDC4EEF77BBC258F /* OvercoilApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OvercoilApp.swift; sourceTree = "<group>"; };
+		886931D719A30626DA2C3BA9 /* CloudLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudLibrary.swift; sourceTree = "<group>"; };
 		8FA7AABE6A7CB8712E634D42 /* ReadingPrefill.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingPrefill.swift; sourceTree = "<group>"; };
 		9533FC85C2EA580DFCDA035C /* TimeWheelMath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeWheelMath.swift; sourceTree = "<group>"; };
 		9D5ED202DD3183805D94FF74 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		B0BAB5DFE9D6D1C237F31F3F /* ICloudSettingsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ICloudSettingsSection.swift; sourceTree = "<group>"; };
 		B6480423992CBD0AAE339C72 /* ClockContinuity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClockContinuity.swift; sourceTree = "<group>"; };
 		BAFE9E19C8056395586DD499 /* WatchBoxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchBoxView.swift; sourceTree = "<group>"; };
 		C0C372427E9D63D2799FFA48 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -75,6 +84,7 @@
 				2A0D3BE01C1529D69F1DC8CF /* CameraView.swift */,
 				80BD647E765E21B47E58F164 /* CoverChooser.swift */,
 				303707E815D4CD726CC19AF3 /* CyclicTimePicker.swift */,
+				B0BAB5DFE9D6D1C237F31F3F /* ICloudSettingsSection.swift */,
 				606753787C93C385F556858B /* RunsView.swift */,
 				9D5ED202DD3183805D94FF74 /* SettingsView.swift */,
 				F25109B7458B1302D75D9637 /* Theme.swift */,
@@ -89,10 +99,12 @@
 			isa = PBXGroup;
 			children = (
 				B6480423992CBD0AAE339C72 /* ClockContinuity.swift */,
+				886931D719A30626DA2C3BA9 /* CloudLibrary.swift */,
 				CF2988997690DCF8411B3AD8 /* Models.swift */,
 				8FA7AABE6A7CB8712E634D42 /* ReadingPrefill.swift */,
 				007CAE196BB32DC0573325D1 /* Repository.swift */,
 				9533FC85C2EA580DFCDA035C /* TimeWheelMath.swift */,
+				74FBD77F9284E0F353C46892 /* WatchIdentityCorrection.swift */,
 				F1D4B02657D869F53BD80A76 /* WatchStatistics.swift */,
 			);
 			path = Core;
@@ -102,6 +114,7 @@
 			isa = PBXGroup;
 			children = (
 				C0C372427E9D63D2799FFA48 /* Assets.xcassets */,
+				530CAB3E59A96763A7F37AB5 /* Overcoil.entitlements */,
 				852D20F1EDC4EEF77BBC258F /* OvercoilApp.swift */,
 				52C8068B89573FAE04C4F59B /* PrivacyInfo.xcprivacy */,
 				2985FD687727059156A17E26 /* Core */,
@@ -116,6 +129,7 @@
 			children = (
 				79A5215FE2905F07DF081F2B /* AppStore.swift */,
 				72ECC694DF3DE8CA2C6C014A /* CaptureService.swift */,
+				4ED461BF7035810BEBC552FE /* ICloudDriveSync.swift */,
 				DD2708C527F6BC091F219851 /* SimulatorFixture.swift */,
 			);
 			path = Services;
@@ -255,8 +269,11 @@
 				B77F1DA20C0FCF1801CC199E /* CameraView.swift in Sources */,
 				A8809520675A32B383306474 /* CaptureService.swift in Sources */,
 				02FC9E991D4019060AA29FAA /* ClockContinuity.swift in Sources */,
+				62BBACAF2163BD70FE3B8F89 /* CloudLibrary.swift in Sources */,
 				5647EA0BCFF9FC69EEE6989D /* CoverChooser.swift in Sources */,
 				8580387DF3709EF3A74BF54E /* CyclicTimePicker.swift in Sources */,
+				113BD8B0A90280EFAC043367 /* ICloudDriveSync.swift in Sources */,
+				85207836E0EEBDF3420DCC75 /* ICloudSettingsSection.swift in Sources */,
 				E32AB392EDD11D637A5C80A6 /* Models.swift in Sources */,
 				9919255AA836B07B13F15021 /* OvercoilApp.swift in Sources */,
 				0DCD161EB94F521B89541D1A /* ReadingPrefill.swift in Sources */,
@@ -268,6 +285,7 @@
 				0CAFC7FB2A79ED4B6A077FA1 /* TimeEntryView.swift in Sources */,
 				7A9E98184854EABAA8EDE131 /* TimeWheelMath.swift in Sources */,
 				B0D92E00477C202CAD648743 /* WatchBoxView.swift in Sources */,
+				3A874F00BA6A7891342FECD3 /* WatchIdentityCorrection.swift in Sources */,
 				B690154D466525F6F93CCB17 /* WatchStatistics.swift in Sources */,
 				63F6CC025AC3094F55570804 /* WatchStatisticsView.swift in Sources */,
 			);
@@ -336,7 +354,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 10;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 3XLD352MG9;
 				ENABLE_NS_ASSERTIONS = NO;
@@ -396,7 +414,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 10;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = 3XLD352MG9;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -432,6 +450,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Overcoil/Overcoil.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Info.plist;
@@ -458,6 +477,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Overcoil/Overcoil.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Info.plist;

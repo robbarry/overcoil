@@ -1,0 +1,35 @@
+{
+  "generated_at_utc": "2026-09-13T22:52:39.567949+00:00",
+  "app": {
+    "bundle_id": "com.robbarry.overcoil",
+    "version": "0.1.0",
+    "build": "10",
+    "source_revision": "81f38968bc09"
+  },
+  "core_tests": {
+    "passed": 31,
+    "failed": 0
+  },
+  "native_identity_ui_test_devices": [
+    "iPhone 17 Pro simulator",
+    "iPhone SE3 simulator"
+  ],
+  "native_two_reading_regression_passed": true,
+  "signed_cloud_documents_container_verified": true,
+  "installed_build_verified": true,
+  "private_backup_verified": true,
+  "existing_library_byte_identical_after_install_before_authorized_edits": true,
+  "authorized_identity_corrections_verified": true,
+  "new_placeholder_watch_entries_verified": 2,
+  "existing_timing_and_photo_records_unchanged": true,
+  "all_original_and_thumbnail_hashes_unchanged": true,
+  "phone_launch_succeeded": true,
+  "icloud_upload_verified": true,
+  "upload_status_checked_at_utc": "2026-09-13T22:50:37Z",
+  "live_isolated_restore_verified": true,
+  "restore_checked_at_utc": "2026-09-13T22:40:38Z",
+  "restore_scope": "Corrected library, before the two later placeholder additions; exact revision match and original library unchanged.",
+  "physical_second_device_sync_verified": false,
+  "physical_capture_alignment_verified": false,
+  "pending": "Second physical-device round trip and capture alignment validation remain unverified. No personal inventory or raw device diagnostics included."
+}
