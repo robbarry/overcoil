@@ -1,18 +1,18 @@
 {
-  "generated_at_utc": "2026-09-13T14:56:45.886726+00:00",
+  "generated_at_utc": "2026-09-13T15:14:35.523296+00:00",
   "candidate": {
     "bundle_id": "com.robbarry.overcoil",
     "version": "0.1.0",
-    "build": "4",
-    "source_revision": "97473f992d65",
+    "build": "5",
+    "source_revision": "45ef20bb578c",
     "device_family": [
       1
     ],
-    "binary_sha256": "6b3b5796b4fa6712dde772cedfd49d7adbc04a705bc5f66f8c77ba9c675804fa",
-    "debug_library_sha256": "e7c7c4d7a699f21975064affa6a51abbb93b8d72288d4aa0f52b5647febda6d4"
+    "binary_sha256": "134c20ca15874be8fc81516d781b7d1fff4bf4aec2d2e290feb3dbf4ca96fb9b",
+    "debug_library_sha256": "9e805b50f15e337d50deba5c7c1a3cec6632526aa41baeab5ee781438f1a5a57"
   },
   "core_tests": {
-    "passed": 16,
+    "passed": 18,
     "failed": 0
   },
   "baseline_native_ui": {
@@ -39,15 +39,21 @@
     "failedTests": 0,
     "totalTestCount": 1
   },
+  "reading_contrast_and_prediction": {
+    "result": "Passed",
+    "passedTests": 2,
+    "failedTests": 0,
+    "totalTestCount": 2
+  },
   "last_verified_phone_install": {
     "bundle_id": "com.robbarry.overcoil",
     "version": "0.1.0",
-    "build": "4",
-    "launch_succeeded": true
+    "build": "5",
+    "launch_succeeded": false
   },
   "candidate_install_attempt": {
     "outcome": "success",
-    "reason": "Installed and launched after the paired iPhone reconnected."
+    "reason": "Installed successfully. Launch probe was blocked by the phone lock."
   },
   "physical_capture_alignment_validated": false,
   "close_up_sharpness_verified_on_phone": false,
