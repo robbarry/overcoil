@@ -10,7 +10,6 @@ struct WatchBoxView: View {
             VStack(alignment: .leading, spacing: 18) {
                 Wordmark().padding(.top, 8)
                 Text("Watch Box").font(.system(.largeTitle, design: .serif)).bold()
-                Text("\(store.database.watches.count) \(store.database.watches.count == 1 ? "watch" : "watches")").foregroundStyle(.secondary)
                 if store.database.watches.isEmpty {
                     ContentUnavailableView {
                         Label("A place for your watches", systemImage: "clock")
@@ -18,14 +17,14 @@ struct WatchBoxView: View {
                         Text("Photograph a dial. Read the frozen time. Discover how your watch runs in everyday life.")
                     } actions: { PrimaryButton(title: "Add your first watch") { adding = true } }
                 } else {
-                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 150), spacing: 12)], spacing: 16) {
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 150), spacing: 12, alignment: .top)], spacing: 16) {
                         ForEach(store.database.watches) { watch in
                             NavigationLink { WatchDetailView(watchID: watch.id) } label: {
-                                VStack(alignment: .leading, spacing: 6) {
-                                    WatchCover(watch: watch).clipShape(RoundedRectangle(cornerRadius: 10))
+                                VStack(alignment: .leading, spacing: 4) {
+                                    WatchCover(watch: watch).clipShape(RoundedRectangle(cornerRadius: 10)).padding(.bottom, 6)
                                     Text(watch.name).font(.headline).foregroundStyle(Theme.ink)
                                     if !watch.model.isEmpty { Text(watch.model).font(.subheadline).foregroundStyle(.secondary) }
-                                    status(watch).font(.caption).foregroundStyle(.secondary)
+                                    timing(watch)
                                 }.frame(maxWidth: .infinity, alignment: .leading)
                             }.buttonStyle(.plain)
                         }
@@ -43,23 +42,19 @@ struct WatchBoxView: View {
             if let id = path.first { WatchDetailView(watchID: id) }
         }
     }
-    @ViewBuilder private func status(_ watch: Watch) -> some View {
+    @ViewBuilder private func timing(_ watch: Watch) -> some View {
         let stats = WatchStatistics.calculate(database: store.database, watchID: watch.id)
         if let rate = stats.rate {
-            VStack(alignment: .leading, spacing: 3) {
-                HStack(spacing: 5) {
-                    Text("\(RunResult.displayRate(rate)) s/day").font(.subheadline.weight(.semibold)).monospacedDigit()
-                        .foregroundStyle(Theme.ink).accessibilityIdentifier("watchBoxOverallRate")
-                    if store.database.activeRun(for: watch.id) != nil { Image(systemName: "circle.fill").font(.system(size: 6)).foregroundStyle(Theme.orange).accessibilityLabel("Active run") }
-                }
-                Text("\(stats.contributingReadingCount) readings · \(stats.durationText)").font(.caption2)
-                if stats.early { Text("Early estimate").font(.caption2) }
-                if let date = stats.lastMeasurementDate { Text("As of \(date.formatted(date: .abbreviated, time: .omitted))").font(.caption2) }
-            }
-        } else if let reading = stats.latestReading, reading.timingValid {
-            Text(RunResult.displayOffset(reading.offset))
-            Text("\(stats.totalReadingCount) \(stats.totalReadingCount == 1 ? "reading" : "readings") · no rate yet").font(.caption2)
-        } else { Label("Start a timing run", systemImage: "plus.circle") }
+            Text("\(RunResult.displayRate(rate)) s/day")
+                .font(.subheadline.weight(.semibold)).monospacedDigit().foregroundStyle(Theme.ink)
+                .accessibilityLabel("Overall estimated \(RunResult.displayRate(rate)) seconds per day")
+                .accessibilityIdentifier("watchBoxOverallRate")
+        } else if let reading = stats.latestReading, reading.timingValid && !reading.capture.clockDiscontinuity {
+            let rounded = reading.offset.rounded()
+            Text(rounded == 0 ? "0 s" : String(format: "%+.0f s", rounded))
+                .font(.subheadline).monospacedDigit().foregroundStyle(Theme.ink)
+                .accessibilityLabel("Latest offset: \(RunResult.displayOffset(reading.offset))")
+        }
     }
 
 }
