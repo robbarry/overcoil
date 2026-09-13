@@ -207,4 +207,38 @@ final class Repository {
         }
         try commit(next)
     }
+    func replaceFromCloud(_ cloud: CloudLibrary, downloadedRoot: URL, expectedLocalRevision: String) throws {
+        guard try CloudLibrary.revision(of: database) == expectedLocalRevision else {
+            throw StoreError.invalid("This device changed while iCloud was downloading. Nothing was replaced; sync will check again.")
+        }
+        try cloud.validate()
+        try cloud.verifyPhotos(in: downloadedRoot)
+        // Preserve a recovery copy before replacing any committed local records.
+        let recovery = root.appendingPathComponent("SyncRecovery/\(expectedLocalRevision)")
+        try fm.createDirectory(at: recovery.appendingPathComponent("images"), withIntermediateDirectories: true)
+        if !fm.fileExists(atPath: recovery.appendingPathComponent("store.json").path) {
+            for photo in database.photos {
+                for (source, name) in [(imageURL(photo.id), photo.fileName), (thumbnailURL(photo.id), photo.thumbnailName)] {
+                    let target = recovery.appendingPathComponent("images/\(name)")
+                    if !fm.fileExists(atPath: target.path) {
+                        do { try fm.linkItem(at: source, to: target) }
+                        catch { try fm.copyItem(at: source, to: target) }
+                    }
+                }
+            }
+            try writeDurably(CloudLibrary.databaseData(database), to: recovery.appendingPathComponent("store.json"))
+        }
+        for photo in cloud.photoFiles {
+            for (cloudPath, target, expectedHash) in [(photo.originalPath, imageURL(photo.id), photo.originalSHA256), (photo.thumbnailPath, thumbnailURL(photo.id), photo.thumbnailSHA256)] {
+                let bytes = try Data(contentsOf: downloadedRoot.appendingPathComponent(cloudPath))
+                if fm.fileExists(atPath: target.path) {
+                    guard CloudLibrary.hash(try Data(contentsOf: target)) == expectedHash else {
+                        throw StoreError.invalid("A photo identifier has conflicting image data. Existing evidence has been preserved.")
+                    }
+                } else { try writeDurably(bytes, to: target) }
+            }
+        }
+        try commit(cloud.database)
+    }
+
 }

@@ -46,6 +46,7 @@
 		30F854A01140B5E796798D08 /* Overcoil.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Overcoil.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3AFD3CB7D13471E075B6D931 /* TimeEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeEntryView.swift; sourceTree = "<group>"; };
 		52C8068B89573FAE04C4F59B /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		530CAB3E59A96763A7F37AB5 /* Overcoil.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Overcoil.entitlements; sourceTree = "<group>"; };
 		606753787C93C385F556858B /* RunsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunsView.swift; sourceTree = "<group>"; };
 		71A93EFACFE43AE0026FDE0F /* OvercoilUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OvercoilUITests.swift; sourceTree = "<group>"; };
 		72ECC694DF3DE8CA2C6C014A /* CaptureService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureService.swift; sourceTree = "<group>"; };
@@ -96,6 +97,7 @@
 			isa = PBXGroup;
 			children = (
 				C0C372427E9D63D2799FFA48 /* Assets.xcassets */,
+				530CAB3E59A96763A7F37AB5 /* Overcoil.entitlements */,
 				852D20F1EDC4EEF77BBC258F /* OvercoilApp.swift */,
 				52C8068B89573FAE04C4F59B /* PrivacyInfo.xcprivacy */,
 				2985FD687727059156A17E26 /* Core */,
@@ -328,7 +330,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 7;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 3XLD352MG9;
 				ENABLE_NS_ASSERTIONS = NO;
@@ -388,7 +390,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 7;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = 3XLD352MG9;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -424,6 +426,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Overcoil/Overcoil.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Info.plist;
@@ -450,6 +453,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Overcoil/Overcoil.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Info.plist;
