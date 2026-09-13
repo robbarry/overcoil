@@ -1,0 +1,59 @@
+{
+  "generated_at_utc": "2026-09-13T14:54:30.319315+00:00",
+  "candidate": {
+    "bundle_id": "com.robbarry.overcoil",
+    "version": "0.1.0",
+    "build": "4",
+    "source_revision": "97473f992d65",
+    "device_family": [
+      1
+    ],
+    "binary_sha256": "6b3b5796b4fa6712dde772cedfd49d7adbc04a705bc5f66f8c77ba9c675804fa",
+    "debug_library_sha256": "e7c7c4d7a699f21975064affa6a51abbb93b8d72288d4aa0f52b5647febda6d4"
+  },
+  "core_tests": {
+    "passed": 16,
+    "failed": 0
+  },
+  "baseline_native_ui": {
+    "result": "Passed",
+    "passedTests": 6,
+    "failedTests": 0,
+    "totalTestCount": 6
+  },
+  "small_iphone_largest_dynamic_type": {
+    "result": "Passed",
+    "passedTests": 1,
+    "failedTests": 0,
+    "totalTestCount": 1
+  },
+  "button_padding_regression": {
+    "result": "Passed",
+    "passedTests": 1,
+    "failedTests": 0,
+    "totalTestCount": 1
+  },
+  "two_reading_flow_regression": {
+    "result": "Passed",
+    "passedTests": 1,
+    "failedTests": 0,
+    "totalTestCount": 1
+  },
+  "last_verified_phone_install": {
+    "bundle_id": "com.robbarry.overcoil",
+    "version": "0.1.0",
+    "build": "3",
+    "launch_succeeded": true
+  },
+  "candidate_install_attempt": {
+    "outcome": "failed",
+    "reason": "Paired iPhone currently unavailable; awaiting reconnection."
+  },
+  "physical_capture_alignment_validated": false,
+  "close_up_sharpness_verified_on_phone": false,
+  "testflight_upload_performed": false,
+  "notes": [
+    "Simulator capture/permission tests use explicitly gated synthetic fixtures; physical builds exclude them.",
+    "No device identifiers, personal image bytes, credentials, or raw device diagnostics are included in this public receipt."
+  ]
+}
