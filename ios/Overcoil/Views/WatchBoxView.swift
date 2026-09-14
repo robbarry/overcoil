@@ -18,7 +18,7 @@ struct WatchBoxView: View {
                     } actions: { PrimaryButton(title: "Add your first watch") { beginAdding() } }
                 } else {
                     LazyVGrid(columns: [GridItem(.adaptive(minimum: 150), spacing: 12, alignment: .top)], spacing: 16) {
-                        ForEach(store.database.watches) { watch in
+                        ForEach(store.database.watchesByLatestEntry) { watch in
                             NavigationLink { WatchDetailView(watchID: watch.id) } label: {
                                 VStack(alignment: .leading, spacing: 4) {
                                     WatchCover(watch: watch).clipShape(RoundedRectangle(cornerRadius: 10)).padding(.bottom, 6)

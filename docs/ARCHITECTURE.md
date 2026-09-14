@@ -4,6 +4,9 @@
   target; `OvercoilUITests` is a simulator test runner, not a provisioned app resource.
 - `Core/Models.swift`: Codable value model, fixed-offset date interpretation,
   first-to-latest rate, display rounding, and pure clock-anchor mapping.
+  `Database.watchesByLatestEntry` is a derived Watch Box sort: max reading
+  created/updated timestamp per watch across all runs, descending, untimed last,
+  stored array order for ties. It does not mutate arrays or add encoded fields.
 - `Core/ReadingPrefill.swift`: predicts watch time from the last observed offset,
   adding elapsed measured drift once at least two prior valid readings exist.
   Suggestions never mutate reference instants or count as observations. No historical

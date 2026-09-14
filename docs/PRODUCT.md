@@ -123,3 +123,13 @@ seconds/day, or the latest offset if a rate cannot yet be calculated. No active 
 reading count, measurement date, “early estimate,” “start a timing run,” or “no rate
 yet” placeholder belongs on the grid. Supporting information remains on detail
 screens. Grid items align at their top edges despite unequal caption heights.
+
+## Watch Box ordering
+
+Most recently saved or corrected timing entry first, across active and completed
+runs. Use the latest remaining reading's save/update activity, not the entered
+watch time or photo capture timestamp. Watches without readings follow those with
+readings; ties and untimed watches retain their existing collection order. Deleting
+readings/runs recomputes the order from surviving entries. Identity/cover edits alone
+do not move a watch. This is display-only: persisted collection order and timing
+evidence remain unchanged.

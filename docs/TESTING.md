@@ -136,3 +136,13 @@ install/app-inventory/launch receipts use the `.build/deletion-` prefix.
 The launch request was denied because the phone was locked, so physical launch
 and live deletion sync on this build are not claimed. Build 10's signed artifact
 remains in `.build/IdentityDeviceDerivedData` for an in-place rollback if needed.
+
+## Build 12 Watch Box ordering
+
+September 14, 2026: 40 core tests passed, including latest entry activity across
+completed/active runs, corrections, stable ties/untimed order, deletion fallback,
+relaunch, and unchanged canonical database encoding. Native multi-watch testing
+passed on iPhone 17 Pro: first and second reading saves each move their watch to
+the front; correcting the older reading moves that watch back to the front after
+relaunch. Untimed watches follow. The rendered grid was inspected in
+`.build/ordering-ui.xcresult` / `.build/ordering-screens`.

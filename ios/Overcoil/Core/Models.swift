@@ -153,6 +153,26 @@ struct Database: Codable, Equatable, Sendable {
     var runs: [TimingRun] = []
     var readings: [Reading] = []
 
+    // Display order only: never reorder the persisted collection. Corrections
+    // count as activity; capture/reference time remains measurement evidence.
+    var watchesByLatestEntry: [Watch] {
+        let watchForRun = Dictionary(runs.map { ($0.id, $0.watchID) }, uniquingKeysWith: { first, _ in first })
+        var latest: [UUID: Date] = [:]
+        for reading in readings {
+            guard let watchID = watchForRun[reading.runID] else { continue }
+            let activity = max(reading.createdAt, reading.updatedAt)
+            latest[watchID] = max(latest[watchID] ?? activity, activity)
+        }
+        return watches.enumerated().sorted { a, b in
+            switch (latest[a.element.id], latest[b.element.id]) {
+            case let (left?, right?) where left != right: return left > right
+            case (_?, nil): return true
+            case (nil, _?): return false
+            default: return a.offset < b.offset
+            }
+        }.map(\.element)
+    }
+
     func readings(in runID: UUID) -> [Reading] {
         readings.filter { $0.runID == runID }.sorted {
             $0.reference == $1.reference ? $0.id.uuidString < $1.id.uuidString : $0.reference < $1.reference

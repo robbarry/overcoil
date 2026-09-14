@@ -22,14 +22,43 @@ import UIKit
         XCTAssertTrue(button.waitForExistence(timeout: 8), "Missing button: \(title)")
         button.tap()
     }
-    func addWatch() {
+    func addWatch(_ name: String = "Test watch") {
         tap("addWatch")
         let field = app.textFields["watchName"]
-        XCTAssertTrue(field.waitForExistence(timeout: 5)); field.tap(); field.typeText("Test watch")
+        XCTAssertTrue(field.waitForExistence(timeout: 5)); field.tap(); field.typeText(name)
         tap("saveWatch")
         XCTAssertTrue(app.buttons["Start timing run"].waitForExistence(timeout: 5))
     }
     func takePhoto() { tap("Take simulator test photo"); XCTAssertTrue(app.pickerWheels.firstMatch.waitForExistence(timeout: 5)) }
+    func testWatchBoxMostRecentEntryFirst() {
+        func checkOrder(_ expected: [String]) {
+            let actual = expected.map { app.staticTexts[$0] }.sorted {
+                if abs($0.frame.minY - $1.frame.minY) > 1 { return $0.frame.minY < $1.frame.minY }
+                return $0.frame.minX < $1.frame.minX
+            }.map(\.label)
+            XCTAssertEqual(actual, expected)
+        }
+        addWatch("First"); app.navigationBars.buttons.element(boundBy: 0).tap()
+        addWatch("Second"); app.navigationBars.buttons.element(boundBy: 0).tap()
+        addWatch("Untimed"); app.navigationBars.buttons.element(boundBy: 0).tap()
+        checkOrder(["First", "Second", "Untimed"])
+        app.staticTexts["Second"].tap()
+        tap("Start timing run"); takePhoto(); enterSeconds("08"); tap("Save reading")
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        checkOrder(["Second", "First", "Untimed"])
+        app.staticTexts["First"].tap()
+        tap("Start timing run"); takePhoto(); enterSeconds("14"); tap("Save reading")
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        checkOrder(["First", "Second", "Untimed"])
+        app.staticTexts["Second"].tap(); tap("currentRun")
+        let row = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "8 seconds ahead")).firstMatch
+        for _ in 0..<5 where !row.isHittable { app.swipeUp() }
+        row.tap(); tap("Correct entered time"); enterSeconds("10"); tap("Save correction")
+        app.terminate(); app.launch()
+        XCTAssertTrue(app.staticTexts["Second"].waitForExistence(timeout: 5))
+        checkOrder(["Second", "First", "Untimed"])
+        screenshot("watch-box-most-recent-entry-first")
+    }
     func enterSeconds(_ seconds: String) {
         XCTAssertEqual(app.pickerWheels.count, 3)
         app.pickerWheels.element(boundBy: 2).adjust(toPickerWheelValue: seconds)
