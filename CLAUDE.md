@@ -42,13 +42,17 @@ Rob is actively using this app. **Never uninstall, reset, seed fixtures into, or
 
 ## Current delivery state
 
-Installed on the phone: **build 10**, source `81f38968bc09`, including iCloud, the clean grid,
-and clearer Brand/Model/optional Nickname identity fields.
+Installed on the phone: **build 11**, source `b107aa3eaa12`, adding confirmed whole-run
+deletion and visible top-bar reading deletion, alongside iCloud and the clean grid/identity fields.
 The verified feature is now integrated into `main`; do not reinstall simply for documentation changes.
-Build 10 retains the same installed source; its checked identity corrections have now run.
-Live iCloud upload and isolated restore are verified. A second physical-device round trip
-remains unverified. Builds 7–10 preserved existing data on install; the subsequent authorized
+Build 11's installed version, signature/source and iCloud entitlements/profile were verified.
+The manifest stayed byte-for-byte identical and every original/thumbnail hash matched the fresh
+private backup. Launch was denied because the phone was locked; physical launch remains unchecked.
+Live iCloud upload and isolated restore were verified on build 10. A second physical-device round trip
+remains unverified. Builds 7–11 preserved existing data on install; the earlier authorized
 identity corrections and additions changed only the intended watch fields/records.
+Current private backup/after-install receipts: `.build/deletion-backup-path.txt`.
+Deletion proof and local result-bundle paths: `docs/TESTING.md`. No user readings were deleted in QA.
 
 ## Build/sign/install
 

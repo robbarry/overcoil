@@ -126,3 +126,13 @@ accessibility text sizes. Result bundles are `.build/deletion-final.xcresult`,
 `.build/deletion-small-final.xcresult`, and `.build/deletion-accessibility-final.xcresult`.
 Rendered confirmations, top actions, retained covers and recalculated output were
 inspected in the exported test screenshots.
+
+Build 11 (`b107aa3eaa12`) was signed, inspected and installed in place. Device app
+inventory reports version 11. The live manifest remained byte-for-byte identical
+to the fresh verified backup; every original/thumbnail was pulled again and its
+checksum matched. No production deletion was performed. Private evidence is
+located by `.build/deletion-backup-path.txt`; signed-artifact verification and
+install/app-inventory/launch receipts use the `.build/deletion-` prefix.
+The launch request was denied because the phone was locked, so physical launch
+and live deletion sync on this build are not claimed. Build 10's signed artifact
+remains in `.build/IdentityDeviceDerivedData` for an in-place rollback if needed.
