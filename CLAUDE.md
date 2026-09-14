@@ -42,17 +42,18 @@ Rob is actively using this app. **Never uninstall, reset, seed fixtures into, or
 
 ## Current delivery state
 
-Installed on the phone: **build 11**, source `b107aa3eaa12`, adding confirmed whole-run
-deletion and visible top-bar reading deletion, alongside iCloud and the clean grid/identity fields.
+Installed on the phone: **build 12**, source `5b42ae41508a`, ordering Watch Box by most
+recent saved/corrected timing entry (untimed watches last), alongside run/reading deletion,
+iCloud and the clean grid/identity fields. Ordering is derived, not persisted.
 The verified feature is now integrated into `main`; do not reinstall simply for documentation changes.
-Build 11's installed version, signature/source and iCloud entitlements/profile were verified.
+Build 12's installed version, signature/source and iCloud entitlements/profile were verified.
 The manifest stayed byte-for-byte identical and every original/thumbnail hash matched the fresh
-private backup. Launch was denied because the phone was locked; physical launch remains unchecked.
+private backup. Physical launch succeeded on September 14, 2026.
 Live iCloud upload and isolated restore were verified on build 10. A second physical-device round trip
-remains unverified. Builds 7–11 preserved existing data on install; the earlier authorized
+remains unverified. Builds 7–12 preserved existing data on install; the earlier authorized
 identity corrections and additions changed only the intended watch fields/records.
-Current private backup/after-install receipts: `.build/deletion-backup-path.txt`.
-Deletion proof and local result-bundle paths: `docs/TESTING.md`. No user readings were deleted in QA.
+Current private backup/after-install receipts: `.build/ordering-backup-path.txt`.
+Ordering/deletion proof and result-bundle paths: `docs/TESTING.md`. No user readings were changed in QA.
 
 ## Build/sign/install
 

@@ -146,3 +146,10 @@ passed on iPhone 17 Pro: first and second reading saves each move their watch to
 the front; correcting the older reading moves that watch back to the front after
 relaunch. Untimed watches follow. The rendered grid was inspected in
 `.build/ordering-ui.xcresult` / `.build/ordering-screens`.
+
+Build 12 (`5b42ae41508a`) was signed, inspected, installed in place, and successfully
+launched on the phone. Installed version 12 was read back. The manifest remained
+byte-for-byte identical and all original/thumbnail hashes matched the fresh backup
+after re-transfer. Private backup/receipts: `.build/ordering-backup-path.txt`;
+build/install/launch verification uses the `.build/ordering-` prefix. Build 11's
+signed artifact remains in `.build/DeletionDeviceDerivedData` for in-place rollback.

@@ -127,7 +127,7 @@ screens. Grid items align at their top edges despite unequal caption heights.
 ## Watch Box ordering
 
 Most recently saved or corrected timing entry first, across active and completed
-runs. Use the latest remaining reading's save/update activity, not the entered
+runs. Use the latest save/update timestamp among remaining readings, not the entered
 watch time or photo capture timestamp. Watches without readings follow those with
 readings; ties and untimed watches retain their existing collection order. Deleting
 readings/runs recomputes the order from surviving entries. Identity/cover edits alone
