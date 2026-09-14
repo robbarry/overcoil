@@ -45,18 +45,22 @@ Rob is actively using this app. **Never uninstall, reset, seed fixtures into, or
 
 ## Current delivery state
 
-Installed on the phone: **build 12**, source `5b42ae41508a`, ordering Watch Box by most
-recent saved/corrected timing entry (untimed watches last), alongside run/reading deletion,
-iCloud and the clean grid/identity fields. Ordering is derived, not persisted.
+Installed on the phone: **build 13**, source `af4ffa298d75`, adding relative last-reading
+ages, quieter everyday screens and recorded-offset sparklines on runs. Latest-entry
+ordering, run/reading deletion, iCloud and identity fields remain. Presentation changes
+are derived only; no timing algorithm, saved evidence or data schema changed.
 The verified feature is now integrated into `main`; do not reinstall simply for documentation changes.
-Build 12's installed version, signature/source and iCloud entitlements/profile were verified.
+Build 13's installed version, signature/source and iCloud entitlements/profile were verified.
 The manifest stayed byte-for-byte identical and every original/thumbnail hash matched the fresh
-private backup. Physical launch succeeded on September 14, 2026.
+private backup. Its launch request was denied because the phone was locked; build 13
+physical launch remains unchecked (build 12 had launched successfully).
 Live iCloud upload and isolated restore were verified on build 10. A second physical-device round trip
-remains unverified. Builds 7–12 preserved existing data on install; the earlier authorized
+remains unverified. Builds 7–13 preserved existing data on install; the earlier authorized
 identity corrections and additions changed only the intended watch fields/records.
-Current private backup/after-install receipts: `.build/ordering-backup-path.txt`.
-Ordering/deletion proof and result-bundle paths: `docs/TESTING.md`. No user readings were changed in QA.
+Current private backup/after-install receipts: `.build/presentation-backup-path.txt`.
+Presentation/ordering/deletion proof and result-bundle paths: `docs/TESTING.md`.
+Read-only private timing review: `.build/timing-review-path.txt` (partial analysis snapshot,
+not a full backup). No user readings were changed in analysis or QA.
 
 ## Build/sign/install
 

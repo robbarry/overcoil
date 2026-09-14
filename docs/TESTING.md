@@ -169,3 +169,11 @@ iPhone 17 Pro. Rendered charts, relative captions and trimmed run screens were
 inspected in `.build/presentation-final-ui.xcresult` and
 `.build/presentation-small-final-ui.xcresult` (exported `*-screens` directories).
 Synthetic future captures intentionally exercise the “in …” age label.
+
+Build 13 (`af4ffa298d75`) was signed, inspected and installed in place. Installed
+version 13 was read back; the live manifest remained byte-for-byte identical and
+all originals/thumbnails were re-transferred with matching pre-update checksums.
+Private backup/receipts: `.build/presentation-backup-path.txt`; artifact/install/
+launch receipts use the `.build/presentation-` prefix. Launch was denied because
+the phone was locked, so physical launch on this build is not claimed. Build 12's
+signed artifact remains in `.build/OrderingDeviceDerivedData` for in-place rollback.
