@@ -44,6 +44,12 @@ Native iPhone, SwiftUI, AVFoundation, app-owned local image files and atomic man
   does not. Large deviations from the predicted watch time (>120 seconds in this build) prompt, never silently exclude.
 - Deleting a reading retains its image when used as a cover. Removing the final
   reading also removes the empty run after confirmation, retaining the watch.
+  Run and reading detail screens offer a top-bar trash button with confirmation.
+  Deleting an active or completed run removes all its readings in one transaction;
+  the watch, its cover/crop, unrelated photos and other runs remain unchanged.
+  Deleting an active run does not reopen a completed run. Timing results recalculate
+  from remaining evidence. Deletions sync through the normal iCloud library update;
+  cloud original photos and recovery copies may remain, rather than being purged.
   Explicit cover-image deletion falls back to the earliest retained image or placeholder.
 - Clock discontinuities (>0.5 s wall/host disagreement, or an overly wide anchor
   bracket) retain readings but end/compromise the run and suppress its rate.

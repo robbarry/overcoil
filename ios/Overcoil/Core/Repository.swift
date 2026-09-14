@@ -230,6 +230,19 @@ final class Repository {
         try commit(next)
     }
 
+    func deleteRun(_ id: UUID) throws {
+        guard database.runs.contains(where: { $0.id == id }) else { return }
+        var next = database
+        let removedPhotoIDs = Set(next.readings(in: id).map(\.photoID))
+        next.readings.removeAll { $0.runID == id }
+        next.runs.removeAll { $0.id == id }
+        let retainedPhotoIDs = Set(next.watches.compactMap(\.coverID) + next.readings.map(\.photoID))
+        next.photos.removeAll { removedPhotoIDs.contains($0.id) && !retainedPhotoIDs.contains($0.id) }
+        // One manifest commit for the entire run. Asset cleanup happens only after
+        // it succeeds; covers, unrelated photos and other runs stay unchanged.
+        try commit(next)
+    }
+
     func deletePhoto(_ id: UUID) throws {
         guard !database.readings.contains(where: { $0.photoID == id }) else { throw StoreError.invalid("This photo is evidence for a reading. Delete the reading first.") }
         var next = database

@@ -39,9 +39,11 @@ struct RunsView: View {
 
 struct RunDetailView: View {
     @Environment(AppStore.self) private var store
+    @Environment(\.dismiss) private var dismiss
     var runID: UUID
     @State private var capturing = false
     @State private var ending = false
+    @State private var deleting = false
     private var run: TimingRun? { store.database.runs.first { $0.id == runID } }
     var body: some View {
         if let run {
@@ -87,10 +89,23 @@ struct RunDetailView: View {
                     }
                 }.padding(22)
             }.background(Theme.ivory).navigationTitle(store.database.watches.first { $0.id == run.watchID }?.displayName ?? "Timing run").navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button("Delete run…", systemImage: "trash", role: .destructive) { deleting = true }
+                    }
+                }
                 .fullScreenCover(isPresented: $capturing, onDismiss: { store.endEditing() }) { CaptureFlow(watchID: run.watchID, runID: store.database.activeRun(for: run.watchID)?.id) }
                 .confirmationDialog("End run? The rate remains based on the first and latest photos.", isPresented: $ending, titleVisibility: .visible) {
                     ForEach(["Finished", "Hands reset", "Watch stopped"], id: \.self) { reason in Button(reason) { _ = store.perform { try $0.endRun(runID, reason: reason) } } }
                     Button("Cancel", role: .cancel) {}
+                }
+                .alert("Delete this run and \(readings.count == 1 ? "its reading" : "all \(readings.count) readings")?", isPresented: $deleting) {
+                    Button("Delete run", role: .destructive) {
+                        if store.perform({ try $0.deleteRun(runID) }) { dismiss() }
+                    }
+                    Button("Cancel", role: .cancel) {}
+                } message: {
+                    Text("Your watch and reference photo stay. Timing results will update. iCloud recovery copies may remain.")
                 }
         } else { ContentUnavailableView("Run removed", systemImage: "clock", description: Text("This run no longer has any readings. Your watch remains in Watch Box.")) }
     }
@@ -137,9 +152,13 @@ struct ReadingDetailView: View {
                             Text("Capture alignment is not yet physically validated. These are diagnostic timestamps, not a certified error bound.")
                         }.font(.caption).monospacedDigit().padding(.top, 8)
                     }
-                    Button("Delete reading…", role: .destructive) { deleting = true }.frame(maxWidth: .infinity)
                 }.padding(20)
             }.background(Theme.ivory).navigationTitle("Reading").navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button("Delete reading…", systemImage: "trash", role: .destructive) { deleting = true }
+                    }
+                }
                 .sheet(isPresented: $editing, onDismiss: { store.endEditing() }) {
                     if let image = store.image(reading.photoID) {
                         NavigationStack {
@@ -152,9 +171,13 @@ struct ReadingDetailView: View {
                         }
                     }
                 }
-                .confirmationDialog("Delete this measurement? Its photo is retained if it is your current cover. If this is the last reading, the empty run will also be removed; your watch stays.", isPresented: $deleting, titleVisibility: .visible) {
+                .alert("Delete this reading?", isPresented: $deleting) {
                     Button("Delete reading", role: .destructive) { if store.perform({ try $0.deleteReading(readingID) }) { dismiss() } }
                     Button("Cancel", role: .cancel) {}
+                } message: {
+                    Text(store.database.readings(in: reading.runID).count == 1
+                         ? "This also removes the empty run. Your watch and reference photo stay. iCloud recovery copies may remain."
+                         : "Your watch and reference photo stay. Timing results will update. iCloud recovery copies may remain.")
                 }
         }
     }

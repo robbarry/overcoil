@@ -100,3 +100,29 @@ the same top coordinate; checks top Save on a reference-photo crop; and records
 A private, checksummed backup of the user's existing library was verified before
 this update. User photos/data are outside the public repository; no app uninstall
 or database reset is part of the update path.
+
+## Build 11 deletion follow-up
+
+Run and reading detail screens have visible top-bar trash actions. Confirmation
+uses a native alert with explicit Cancel and Delete buttons: the initial iOS 26
+confirmation popover omitted its cancel action, caught by native UI tests.
+
+Deletion tests cover active/completed runs, unchanged covers and crops, other
+watches/runs, endpoint recalculation, final-reading removal, idempotent retry,
+stale captures, clock-compromise retention, and fault-injected manifest failures
+that preserve every original and thumbnail. Replica tests propagate individual
+reading and whole-run deletions while retaining the cover and recovery copies;
+these are isolated repositories, not proof of a second physical-device round trip.
+
+Native tests cancel and confirm both deletion actions, verify +9 → +12 s/day when
+removing a completed run, verify rate → offset when removing a second reading,
+and relaunch to check saved state and cover retention. All destructive UI testing
+uses simulator-only synthetic libraries, never the user's phone inventory.
+
+Verified September 13, 2026: 37 core tests passed. Five native tests passed on
+iPhone 17 Pro (four deletion flows plus capture/correction/relaunch regression).
+Both cancellation/final-removal tests also passed on SE3 at default and largest
+accessibility text sizes. Result bundles are `.build/deletion-final.xcresult`,
+`.build/deletion-small-final.xcresult`, and `.build/deletion-accessibility-final.xcresult`.
+Rendered confirmations, top actions, retained covers and recalculated output were
+inspected in the exported test screenshots.

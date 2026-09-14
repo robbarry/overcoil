@@ -13,6 +13,11 @@
   the one JSON manifest; visible state changes only after successful manifest commit.
   Atomic file replacement uses temporary file → synchronize → rename. No in-place
   datastore migrations. `beforeManifestWrite` enables failure injection in tests.
+  Whole-run deletion removes the run and its readings in one commit, retaining
+  photos referenced by covers or surviving readings. Only the deleted readings'
+  unreferenced assets are removed, after the commit succeeds. Existing reading
+  deletion likewise removes an emptied run. Neither operation changes other runs
+  or clears clock-compromise flags; statistics derive from remaining evidence.
 - `Services/AppStore.swift`: main-actor observable adapter, bounded image cache,
   native image import/thumbnail/orientation normalization. Original bytes retained.
 - `Services/CaptureService.swift`: serial camera queue; rear autofocus-capable ultra-wide camera when its reported minimum focus distance

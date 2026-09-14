@@ -88,4 +88,39 @@ extension CloudCoreTests {
         XCTAssertThrowsError(try target.replaceFromCloud(document, downloadedRoot: staging, expectedLocalRevision: CloudLibrary.revision(of: before)))
         XCTAssertEqual(target.database, before)
     }
+
+    func testDeletionsSyncToReplicaWithCoverAndRecoveryPreserved() throws {
+        let folder = FileManager.default.temporaryDirectory.appendingPathComponent("overcoil-delete-sync-\(UUID())")
+        defer { try? FileManager.default.removeItem(at: folder) }
+        let a = try Repository(root: folder.appendingPathComponent("a")), b = try Repository(root: folder.appendingPathComponent("b"))
+        let watch = Watch(name: "Deletion sync test"); try a.saveWatch(watch)
+        let date = Date(timeIntervalSince1970: 1800000000)
+        try addReading(a, watchID: watch.id, reference: date, offset: 8)
+        try addReading(a, watchID: watch.id, reference: date.addingTimeInterval(86400), offset: 14)
+        let before = a.database
+        let shared = folder.appendingPathComponent("cloud")
+        var baseline: String?
+        for step in 0..<3 {
+            if step == 1 { try a.deleteReading(before.readings[1].id) }
+            if step == 2 { try a.deleteRun(before.runs[0].id) }
+            let document = try CloudLibrary.build(database: a.database, localRoot: a.root, parentRevision: baseline)
+            try stage(document, from: a, into: shared)
+            let localRevision = try CloudLibrary.revision(of: b.database)
+            XCTAssertEqual(CloudSyncDecision.choose(localRevision: localRevision, remoteRevision: document.revision,
+                                                   baseline: baseline, localIsEmpty: b.database.watches.isEmpty), .download)
+            try b.replaceFromCloud(CloudLibrary.decode(document.encoded()), downloadedRoot: shared, expectedLocalRevision: localRevision)
+            XCTAssertEqual(b.database, a.database)
+            if step > 0 {
+                let recovery = b.root.appendingPathComponent("SyncRecovery/\(localRevision)")
+                XCTAssertTrue(FileManager.default.fileExists(atPath: recovery.appendingPathComponent("store.json").path))
+            }
+            baseline = document.revision
+        }
+        XCTAssertTrue(b.database.runs.isEmpty); XCTAssertTrue(b.database.readings.isEmpty)
+        XCTAssertEqual(b.database.watches, before.watches)
+        let cover = try XCTUnwrap(before.watches[0].coverID)
+        XCTAssertEqual(try Data(contentsOf: a.imageURL(cover)), try Data(contentsOf: b.imageURL(cover)))
+        XCTAssertEqual(try Data(contentsOf: a.thumbnailURL(cover)), try Data(contentsOf: b.thumbnailURL(cover)))
+        XCTAssertEqual(try Repository(root: b.root).database, b.database)
+    }
 }
