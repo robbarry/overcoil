@@ -18,9 +18,12 @@ is the behavioral contract; `docs/ARCHITECTURE.md` and `docs/TESTING.md` cover i
 - Overall watch rate pools within-run offset changes over summed measured elapsed time. Never
   bridge reset offsets or average run rates without duration weighting. Show evidence counts,
   duration and measurement date on detail screens, not an invented confidence percentage.
-  **Watch Box cards stay minimal: photo, name/model, one timing value.** No counts, dates,
+  **Watch Box cards stay minimal: photo, name/model, one timing value, relative last-reading age.** No counts, absolute timestamps,
   quality badges, active dots, run prompts or “no rate yet” placeholders on the grid.
   Servicing epochs are future work.
+- Keep routine coaching out of everyday screens; background belongs in tips/info/Settings.
+  Preserve actual error/clock warnings. Run charts show recorded offset against capture elapsed
+  time, never a fitted rate curve or unvalidated error/confidence bars.
 - Save stays pinned above the Add/Edit Watch form. Reference cropping has top Save too.
   Watch Box grid items are top-aligned; unequal text lengths must not vertically center the photos.
 

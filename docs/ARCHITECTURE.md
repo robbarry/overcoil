@@ -7,6 +7,13 @@
   `Database.watchesByLatestEntry` is a derived Watch Box sort: max reading
   created/updated timestamp per watch across all runs, descending, untimed last,
   stored array order for ties. It does not mutate arrays or add encoded fields.
+- `Core/TimingPresentation.swift`: pure relative-age formatting and offset-chart
+  geometry. Chart points use capture elapsed time and full-precision observed
+  offsets. The vertical domain is padded by at least two seconds at each end to
+  avoid magnifying a flat trace; this is display scaling, not an error bound.
+  `Views/RunSparkline.swift` draws only observations and adjacent valid connections,
+  with no smoothing or regression. Clock-compromised runs have no connecting line.
+  `TimelineView` refreshes relative last-capture ages on Watch Box every minute.
 - `Core/ReadingPrefill.swift`: predicts watch time from the last observed offset,
   adding elapsed measured drift once at least two prior valid readings exist.
   Suggestions never mutate reference instants or count as observations. No historical

@@ -153,3 +153,19 @@ byte-for-byte identical and all original/thumbnail hashes matched the fresh back
 after re-transfer. Private backup/receipts: `.build/ordering-backup-path.txt`;
 build/install/launch verification uses the `.build/ordering-` prefix. Build 11's
 signed artifact remains in `.build/DeletionDeviceDerivedData` for in-place rollback.
+
+## Build 13 relative ages and run charts
+
+September 14, 2026: 44 core tests passed. New coverage checks relative-age unit
+boundaries/future timestamps/spoken labels, irregular chart spacing, intermediate
+variations, singleton/flat/coincident captures, and invalid/compromised-clock gaps.
+No timing calculations, saved evidence or data schema changed.
+
+Native chart/age/no-coaching tests passed on iPhone 17 Pro and SE3. A synthetic
+three-point rise/fall is asserted through both the chart's computed accessibility
+value and orange pixels inside the actual chart bounds; labels alone are not proof.
+Capture/correction/relaunch and final-reading deletion regressions also passed on
+iPhone 17 Pro. Rendered charts, relative captions and trimmed run screens were
+inspected in `.build/presentation-final-ui.xcresult` and
+`.build/presentation-small-final-ui.xcresult` (exported `*-screens` directories).
+Synthetic future captures intentionally exercise the “in …” age label.

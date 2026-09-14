@@ -63,6 +63,42 @@ import UIKit
         XCTAssertEqual(app.pickerWheels.count, 3)
         app.pickerWheels.element(boundBy: 2).adjust(toPickerWheelValue: seconds)
     }
+    func testRelativeAgeAndRunSparklineWithoutCoaching() {
+        addWatch(); tap("Start timing run"); takePhoto(); enterSeconds("08"); tap("Save reading")
+        XCTAssertFalse(app.staticTexts["Add another reading to measure the rate."].exists)
+        XCTAssertFalse(app.staticTexts["First photo set as reference. Change it whenever you like."].exists)
+        tap("Add reading"); takePhoto(); enterSeconds("20"); tap("Save reading")
+        tap("Add reading"); takePhoto(); enterSeconds("14"); tap("Save reading")
+        tap("currentRun")
+        let chart = app.otherElements["runSparkline"]
+        XCTAssertTrue(chart.waitForExistence(timeout: 5))
+        XCTAssertTrue((chart.value as? String ?? "").contains("3 readings"))
+        XCTAssertTrue((chart.value as? String ?? "").contains("latest 14 seconds ahead"))
+        XCTAssertFalse(app.staticTexts["Average since the first reading"].exists)
+        XCTAssertFalse(app.staticTexts["Add another reading tomorrow. Longer intervals reduce the effect of reading error."].exists)
+        let shot = app.screenshot().image.cgImage!
+        let scale = CGFloat(shot.width) / app.frame.width, frame = chart.frame
+        let rect = CGRect(x: frame.minX * scale, y: frame.minY * scale, width: frame.width * scale, height: frame.height * scale).integral
+        guard let crop = shot.cropping(to: rect) else { return XCTFail("Chart must be visible") }
+        var rgba = [UInt8](repeating: 0, count: crop.width * crop.height * 4)
+        rgba.withUnsafeMutableBytes { bytes in
+            let context = CGContext(data: bytes.baseAddress, width: crop.width, height: crop.height, bitsPerComponent: 8,
+                                    bytesPerRow: crop.width * 4, space: CGColorSpaceCreateDeviceRGB(),
+                                    bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
+            context.draw(crop, in: CGRect(x: 0, y: 0, width: crop.width, height: crop.height))
+        }
+        let orangePixels = stride(from: 0, to: rgba.count, by: 4).filter { rgba[$0] > 150 && rgba[$0 + 1] < 140 && rgba[$0 + 2] < 100 }.count
+        XCTAssertGreaterThan(orangePixels, 50, "The actual chart—not just its labels—must render.")
+        screenshot("run-offset-sparkline-with-intermediate-variation")
+        app.terminate(); app.launch()
+        let age = app.staticTexts["lastReadingAge"]
+        XCTAssertTrue(age.waitForExistence(timeout: 5)); XCTAssertTrue(age.label.hasPrefix("Last reading"))
+        XCTAssertFalse(age.label.contains("2026"))
+        screenshot("watch-box-relative-last-reading")
+        tap("Runs")
+        XCTAssertTrue(app.otherElements["runSparkline"].waitForExistence(timeout: 5))
+        screenshot("run-list-offset-sparkline")
+    }
     func testBrandModelAndOptionalNickname() {
         tap("addWatch")
         XCTAssertFalse(app.buttons["saveWatch"].isEnabled)
@@ -104,7 +140,7 @@ import UIKit
         app.staticTexts["Test watch"].tap()
         XCTAssertTrue(app.staticTexts["rateValue"].waitForExistence(timeout: 8) && app.staticTexts["rateValue"].label.contains("+6.0"))
         tap("currentRun")
-        XCTAssertTrue(app.staticTexts["Average since the first reading"].waitForExistence(timeout: 5)); screenshot("05-run-detail")
+        XCTAssertTrue(app.otherElements["runSparkline"].waitForExistence(timeout: 5)); screenshot("05-run-detail")
         app.staticTexts["14 seconds ahead"].tap()
         tap("Correct entered time")
         enterSeconds("20"); tap("Save correction")

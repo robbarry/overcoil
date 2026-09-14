@@ -12,7 +12,7 @@ struct RunsView: View {
             if runs.isEmpty { ContentUnavailableView("No timing runs yet", systemImage: "clock", description: Text("Start with a photo from your Watch Box.")) }
             ForEach(runs) { run in
                 NavigationLink { RunDetailView(runID: run.id) } label: {
-                    HStack(spacing: 12) {
+                    HStack(alignment: .top, spacing: 12) {
                         if let watch = store.database.watches.first(where: { $0.id == run.watchID }) {
                             WatchCover(watch: watch).frame(width: 58, height: 58).clipShape(RoundedRectangle(cornerRadius: 9))
                             VStack(alignment: .leading, spacing: 5) {
@@ -28,6 +28,7 @@ struct RunsView: View {
                                     Text(first.reference.formatted(date: .abbreviated, time: .shortened)).font(.caption).foregroundStyle(.secondary)
                                 }
                                 if run.clockCompromised { Text("Phone clock changed — no rate").font(.caption) }
+                                RunSparkline(readings: readings, clockCompromised: run.clockCompromised, compact: true)
                             }
                         }
                     }
@@ -48,20 +49,14 @@ struct RunDetailView: View {
     var body: some View {
         if let run {
             let readings = store.database.readings(in: runID)
-            let result = RunResult.calculate(readings, clockCompromised: run.clockCompromised)
             ScrollView {
                 VStack(alignment: .leading, spacing: 22) {
                     Label(run.isActive ? "Run in progress" : "Completed run", systemImage: run.isActive ? "circle.fill" : "checkmark.circle").font(.subheadline).foregroundStyle(Theme.orange)
                     RunSummary(run: run, readings: readings)
-                    Divider()
-                    HStack {
-                        VStack(alignment: .leading) { Text(elapsed(result.elapsed)).font(.title3.bold()); Text("Measured span").font(.caption).foregroundStyle(.secondary) }
-                        Spacer()
-                        VStack { Text("\(readings.count)").font(.title3.bold()); Text("Readings").font(.caption).foregroundStyle(.secondary) }
-                    }
+                    RunSparkline(readings: readings, clockCompromised: run.clockCompromised)
                     if let reason = run.endReason { Text("Ended: \(reason)").font(.subheadline).foregroundStyle(.secondary) }
                     Divider()
-                    Text("Readings").font(.headline)
+                    Text("Readings (\(readings.count))").font(.headline)
                     ForEach(readings.reversed()) { reading in
                         NavigationLink { ReadingDetailView(readingID: reading.id) } label: {
                             HStack(spacing: 14) {
@@ -81,7 +76,6 @@ struct RunDetailView: View {
                         PrimaryButton(title: "Add reading") { beginCapture() }
                         SecondaryButton(title: "End run") { ending = true }
                     } else {
-                        Text("New captures belong to a new run. You can still correct these saved readings.").font(.caption).foregroundStyle(.secondary)
                         if let active = store.database.activeRun(for: run.watchID) {
                             NavigationLink("Go to active run") { RunDetailView(runID: active.id) }
                         } else { PrimaryButton(title: "Start a new run") { beginCapture() } }
@@ -110,12 +104,6 @@ struct RunDetailView: View {
         } else { ContentUnavailableView("Run removed", systemImage: "clock", description: Text("This run no longer has any readings. Your watch remains in Watch Box.")) }
     }
     private func beginCapture() { guard !capturing else { return }; store.beginEditing(); capturing = true }
-    private func elapsed(_ seconds: Double) -> String {
-        if seconds < 60 { return String(format: "%.0f seconds", seconds) }
-        if seconds < 3600 { return String(format: "%.1f minutes", seconds / 60) }
-        if seconds < 172800 { return String(format: "%.1f hours", seconds / 3600) }
-        return String(format: "%.1f days", seconds / 86400)
-    }
 }
 
 struct ReadingDetailView: View {
@@ -138,7 +126,6 @@ struct ReadingDetailView: View {
                     LabeledContent("Watch time basis", value: zoneDescription(reading.entered.utcOffset))
                     if !reading.timingValid { Label("Timing invalid: detected clock discontinuity", systemImage: "exclamationmark.triangle") }
                     PrimaryButton(title: "Correct entered time") { guard !editing else { return }; store.beginEditing(); editing = true }
-                    Text("Corrections keep the original image and capture timestamp unchanged.").font(.caption).foregroundStyle(.secondary)
                     DisclosureGroup("Capture diagnostics") {
                         VStack(alignment: .leading, spacing: 8) {
                             if let pipeline = reading.capture.pipeline { Text("Pipeline: \(pipeline)") }

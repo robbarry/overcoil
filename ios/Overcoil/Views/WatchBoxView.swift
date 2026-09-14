@@ -58,6 +58,14 @@ struct WatchBoxView: View {
                 .font(.subheadline).monospacedDigit().foregroundStyle(Theme.ink)
                 .accessibilityLabel("Latest offset: \(RunResult.displayOffset(reading.offset))")
         }
+        if let reading = stats.latestReading {
+            TimelineView(.periodic(from: .now, by: 60)) { context in
+                Text(ReadingAge.label(since: reading.reference, now: context.date))
+                    .font(.caption).foregroundStyle(.secondary)
+                    .accessibilityLabel(ReadingAge.label(since: reading.reference, now: context.date, spoken: true))
+                    .accessibilityIdentifier("lastReadingAge")
+            }
+        }
     }
 
 }
@@ -166,10 +174,6 @@ struct WatchDetailView: View {
                         Text(watch.displayName).font(.largeTitle.bold())
                         if !watch.displaySubtitle.isEmpty { Text(watch.displaySubtitle).foregroundStyle(.secondary) }
                     }
-                    if watch.coverWasAutomatic && watch.coverID != nil {
-                        Label("First photo set as reference. Change it whenever you like.", systemImage: "checkmark.circle.fill")
-                            .font(.subheadline).padding(12).background(.green.opacity(0.08), in: RoundedRectangle(cornerRadius: 12))
-                    }
                     WatchStatisticsView(stats: stats)
                     if let run = store.database.activeRun(for: watchID) {
                         NavigationLink { RunDetailView(runID: run.id) } label: {
@@ -179,6 +183,7 @@ struct WatchDetailView: View {
                                 if stats.rate != nil, let rate = RunResult.calculate(readings, clockCompromised: run.clockCompromised).rate {
                                     Text("This run: \(RunResult.displayRate(rate)) s/day · \(readings.count) readings").font(.subheadline).monospacedDigit()
                                 } else { RunSummary(run: run, readings: readings, compact: true) }
+                                RunSparkline(readings: readings, clockCompromised: run.clockCompromised, compact: true)
                             }.foregroundStyle(Theme.ink).contentShape(Rectangle())
                         }.buttonStyle(.plain).accessibilityIdentifier("currentRun")
                         PrimaryButton(title: "Add reading") { beginCapture() }
@@ -189,7 +194,6 @@ struct WatchDetailView: View {
                             NavigationLink("Review saved readings") { RunDetailView(runID: latest.id) }
                         }
                         PrimaryButton(title: "Start timing run") { beginCapture() }
-                        Text("No need to set or synchronize your watch first.").font(.caption).foregroundStyle(.secondary)
                     }
                     Divider()
                     NavigationLink { RunsView(watchID: watchID) } label: { Label("Run history", systemImage: "clock.arrow.circlepath") }

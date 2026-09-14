@@ -70,7 +70,6 @@ struct WatchCover: View {
             } else {
                 VStack(spacing: 8) {
                     Image(systemName: "clock").font(.system(size: 38, weight: .ultraLight))
-                    Text("Your watch, your photo").font(.caption)
                 }.foregroundStyle(.secondary)
             }
         }.aspectRatio(1, contentMode: .fit).clipped().accessibilityLabel("Reference photo for \(watch.displayName)")
@@ -94,18 +93,13 @@ struct RunSummary: View {
                     .monospacedDigit().minimumScaleFactor(0.5).lineLimit(1)
                     .accessibilityLabel("Estimated \(RunResult.displayRate(rate)) seconds per day").accessibilityIdentifier("rateValue")
                 Text("seconds / day").font(compact ? .subheadline : .title3)
-                Text(abs(rate) < 0.05 ? "Approximately steady—not perfect accuracy" : rate > 0 ? "Gaining time" : "Losing time")
+                Text(abs(rate) < 0.05 ? "Approximately steady" : rate > 0 ? "Gaining time" : "Losing time")
                     .foregroundStyle(Theme.orange).font(.subheadline)
                 if result.early { Label("Early estimate", systemImage: "clock.badge.exclamationmark").font(.caption.bold()) }
-                if !compact {
-                    Text("Average since the first reading").font(.caption).foregroundStyle(.secondary)
-                    if result.early { Text("Add another reading tomorrow. Longer intervals reduce the effect of reading error.").font(.caption).foregroundStyle(.secondary) }
-                }
             } else if let first = readings.first {
                 Text(RunResult.displayOffset(first.offset)).font(.title2).monospacedDigit()
                 Text("\(readings.count) reading\(readings.count == 1 ? "" : "s") saved").font(.subheadline)
-                Text(readings.count == 1 ? "Add another reading to measure the rate." : "Readings need different capture times to measure the rate.")
-                    .font(.subheadline).foregroundStyle(.secondary)
+                if readings.count > 1 { Text("Same capture time — no rate").font(.caption).foregroundStyle(.secondary) }
             }
         }.frame(maxWidth: .infinity, alignment: .leading)
     }

@@ -83,7 +83,6 @@ struct CameraView: View {
             }.clipped()
             VStack(spacing: 16) {
                 if ready { Text(lensDescription).font(.caption).foregroundStyle(.white.opacity(0.85)) }
-                Text(coverOnly ? "This photo will not create a timing reading." : "Phone time is saved with your photo.").font(.subheadline).multilineTextAlignment(.center)
                 HStack {
                     if hasTorch {
                         Button(torch ? "Turn torch off" : "Turn torch on", systemImage: torch ? "flashlight.on.fill" : "flashlight.off.fill") {

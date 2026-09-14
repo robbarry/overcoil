@@ -20,7 +20,7 @@ struct WatchStatisticsView: View {
                 }
                 Text(abs(rate) < 0.05 ? "Approximately steady" : rate > 0 ? "Gaining time" : "Losing time").foregroundStyle(Theme.orange)
                 Text(stats.supportText).font(.caption).foregroundStyle(.secondary)
-                if stats.early { Label("Early estimate · try a longer run", systemImage: "clock").font(.caption) }
+                if stats.early { Label("Early estimate", systemImage: "clock").font(.caption) }
                 if let date = stats.lastMeasurementDate { Text("Latest measurement: \(date.formatted(date: .abbreviated, time: .shortened))").font(.caption).foregroundStyle(.secondary) }
             }.padding(16).background(.white.opacity(0.6), in: RoundedRectangle(cornerRadius: 14))
                 .alert("Overall watch rate", isPresented: $explanation) { Button("OK", role: .cancel) {} } message: {

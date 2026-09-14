@@ -118,9 +118,9 @@ photos. This supersedes the original local-only/no-cloud v1 default.
 ## Watch Box visual simplification
 
 Rob explicitly removed the extra metadata from collection cards. Cards now contain
-only the reference photo, name/model, and one timing value when available: overall
+the reference photo, name/model, and one timing value when available: overall
 seconds/day, or the latest offset if a rate cannot yet be calculated. No active dot,
-reading count, measurement date, “early estimate,” “start a timing run,” or “no rate
+reading count, absolute timestamp, “early estimate,” “start a timing run,” or “no rate
 yet” placeholder belongs on the grid. Supporting information remains on detail
 screens. Grid items align at their top edges despite unequal caption heights.
 
@@ -133,3 +133,26 @@ readings; ties and untimed watches retain their existing collection order. Delet
 readings/runs recomputes the order from surviving entries. Identity/cover edits alone
 do not move a watch. This is display-only: persisted collection order and timing
 evidence remain unchanged.
+
+## Quiet timing presentation
+
+Watch Box also shows a compact relative age, such as “Last reading 3h ago” or
+“Last reading 3w ago,” only when a reading exists. This uses the latest photo's
+capture instant, not its correction time or the latest contributing rate endpoint.
+The caption refreshes while visible and after foregrounding. Future timestamps
+are expressed as “in …” rather than disguised as a recent past observation.
+
+Remove recurring instructions about taking another reading, waiting until tomorrow,
+automatic covers and correction semantics from everyday screens. The concise Early
+estimate qualifier and genuine clock/error warnings remain; explanations live in
+Reading tips, info and Settings rather than repeating alongside the data.
+
+Each run has a small chart on its list row, current-run card and detail screen:
+observed offset in seconds, with dots at actual capture-time spacing and straight
+connections between adjacent valid observations. Detail charts label their vertical
+scale; all charts with valid measured change show that change and elapsed span.
+One reading produces one dot, not a trend. Coincident captures do not establish a
+line/rate, invalid observations break connections, and compromised runs show only
+neutral outlined dots. No bridging runs, smoothing, fitted curve, implied steady
+rate between samples, or unvalidated uncertainty/error bars. Charts never change
+saved evidence or headline rate calculations.
